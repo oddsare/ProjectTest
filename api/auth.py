@@ -77,7 +77,7 @@ def register_routes(app, get_db):
         db.close()
 
         if not user or not check_password_hash(user['password_hash'], password):
-            return jsonify({'error': 'Invalid credentials'}), 401
+            return jsonify({'error': 'The email or password you entered is incorrect.'}), 401
 
         session['user_id'] = user['id']
 
