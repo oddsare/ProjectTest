@@ -204,10 +204,9 @@
 
                 if (response.ok) {
                     localStorage.setItem('userEmail', email);
-                    showAlert('Login successful! Redirecting...', 'success');
-                    setTimeout(() => { window.location.href = 'dashboard.html'; }, 1000);
+                    window.location.href = 'dashboard.html';
                 } else {
-                    showAlert(data.message || 'Invalid credentials', 'error');
+                    showAlert(data.error || 'The email or password you entered is incorrect.', 'error');
                 }
             } catch (error) {
                 showAlert('Unable to connect to server. Please try again.', 'error');
