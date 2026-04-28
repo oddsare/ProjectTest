@@ -151,9 +151,8 @@
                 const data = await response.json();
 
                 if (response.ok) {
-                    showAlert('Account created! Redirecting...', 'success');
                     localStorage.setItem('userEmail', email);
-                    setTimeout(() => { window.location.href = 'dashboard.html'; }, 1500);
+                    window.location.href = 'dashboard.html';
                 } else {
                     if (data.errors && data.errors.length > 0) {
                         data.errors.forEach(err => {
@@ -161,7 +160,7 @@
                             if (el) el.textContent = err.msg;
                         });
                     } else {
-                        showAlert(data.message || 'Registration failed', 'error');
+                        showAlert(data.error || 'Registration failed', 'error');
                     }
                 }
             } catch (error) {
