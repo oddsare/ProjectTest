@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat - Roomi</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body { background: #f5f6fa; margin: 0; height: 100vh; overflow: hidden; }
+
+        .chat-container {
+            display: flex;
+            height: 100vh;
+            padding-top: 60px; /* navbar height */
+        }
+
+        .chat-sidebar {
+            width: 320px;
+            background: white;
+            border-right: 1px solid #e5e7eb;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .chat-sidebar-header h2 {
+            margin: 0;
+            font-size: 1.25rem;
+            color: #1f2937;
+        }
+
+        .chat-list {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .chat-item {
+            padding: 16px 20px;
+            border-bottom: 1px solid #f3f4f6;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .chat-item:hover {
+            background: #f9fafb;
+        }
+
+        .chat-item.active {
+            background: #fef2f2;
+            border-left: 3px solid #CE1141;
+        }
+
+        .chat-item-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 4px;
+        }
+
+        .chat-item-name {
+            font-weight: 600;
+            color: #1f2937;
+            font-size: 0.95rem;
+        }
+
+        .chat-item-time {
+            font-size: 0.75rem;
+            color: #9ca3af;
+        }
+
+        .chat-item-preview {
+            font-size: 0.85rem;
+            color: #6b7280;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .unread-badge {
+            background: #CE1141;
+            color: white;
+            font-size: 0.7rem;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+
+        .chat-main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: white;
+        }
+
+        .chat-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid #e5e7eb;
+            background: white;
+        }
+
+        .chat-header h3 {
+            margin: 0;
+            font-size: 1.1rem;
+            color: #1f2937;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px;
+            background: #f9fafb;
+        }
+
+        .message {
+            display: flex;
+            margin-bottom: 16px;
+            gap: 12px;
+        }
+
+        .message.own {
+            flex-direction: row-reverse;
+        }
+
+        .message-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #fce7f3, #fbcfe8);
+            color: #CE1141;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+
+        .message-content {
+            max-width: 60%;
+        }
+
+        .message-bubble {
+            background: white;
+            padding: 10px 14px;
+            border-radius: 12px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+
+        .message.own .message-bubble {
+            background: #CE1141;
+            color: white;
+        }
+
+        .message-text {
+            margin: 0;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .message-time {
+            font-size: 0.7rem;
+            color: #9ca3af;
+            margin-top: 4px;
+        }
+
+        .message.own .message-time {
+            color: rgba(255,255,255,0.7);
+        }
+
+        .typing-indicator {
+            font-size: 0.85rem;
+            color: #6b7280;
+            font-style: italic;
+            padding: 8px 24px;
+            display: none;
+        }
+
+        .typing-indicator.show {
+            display: block;
+        }
+
+        .chat-input {
+            padding: 20px 24px;
+            border-top: 1px solid #e5e7eb;
+            background: white;
+        }
+
+        .input-row {
+            display: flex;
+            gap: 12px;
+        }
+
+        .input-row textarea {
+            flex: 1;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 0.9rem;
+            resize: none;
+            font-family: inherit;
+        }
+
+        .input-row textarea:focus {
+            outline: none;
+            border-color: #CE1141;
+        }
+
+        .btn-send {
+            background: #CE1141;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .btn-send:hover {
+            opacity: 0.9;
+        }
+
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: #9ca3af;
+        }
+
+        .empty-state h3 {
+            color: #6b7280;
+            margin: 0 0 8px 0;
+        }
+
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation -->
+    <nav class="navbar-embark">
+        <div class="nav-container-embark">
+            <div class="nav-brand-embark">
+                <span style="color: #CE1141; font-weight: 700; font-size: 24px;">Roomi</span>
+            </div>
+            <div class="nav-links-embark">
+                <a href="dashboard.html" class="nav-link-embark">Home</a>
+                <a href="matches.html" class="nav-link-embark">Matches</a>
+                <a href="chat.html" class="nav-link-embark active">Chat</a>
+                <a href="profile.html" class="nav-link-embark">Profile</a>
+            </div>
+            <div class="nav-actions-embark">
+                <button class="btn-text-embark" id="logoutBtn">Log out</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="chat-container">
+        <!-- Sidebar -->
+        <div class="chat-sidebar">
+            <div class="chat-sidebar-header">
+                <h2>Messages</h2>
+            </div>
+            <div class="chat-list" id="chatList">
+                <div class="empty-state">
+                    <h3>No conversations yet</h3>
+                    <p>Match with someone to start chatting!</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Chat -->
+        <div class="chat-main">
+            <div id="chatEmpty" class="empty-state">
+                <h3>Select a conversation</h3>
+                <p>Choose a match from the sidebar to start messaging</p>
+            </div>
+
+            <div id="chatActive" class="hidden" style="display: flex; flex-direction: column; height: 100%;">
+                <div class="chat-header">
+                    <h3 id="chatName">...</h3>
+                </div>
+
+                <div class="chat-messages" id="chatMessages"></div>
+
+                <div class="typing-indicator" id="typingIndicator">
+                    <span id="typingName">...</span> is typing...
+                </div>
+
+                <div class="chat-input">
+                    <div class="input-row">
+                        <textarea id="messageInput" placeholder="Type a message..." rows="1"></textarea>
+                        <button class="btn-send" onclick="sendMessage()">Send</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="auth.js"></script>
+    <script>
+        checkAuth();
+
+        let conversations = [];
+        let currentMatchId = null;
+        let currentOtherUserId = null;
+        let currentConfirmed = false;
+        let messages = [];
+        let currentUserId = null;
+        let pollInterval = null;
+        let typingTimeout = null;
+
+        async function loadConversations() {
+            try {
+                const res = await fetch(`${API_BASE}/api/chat/conversations`, {
+                    credentials: 'include'
+                });
+
+                if (!res.ok) throw new Error('Failed to load conversations');
+
+                const data = await res.json();
+                conversations = data.conversations;
+                renderConversations();
+
+                return conversations; // Return for chaining
+
+            } catch (err) {
+                console.error('Error loading conversations:', err);
+                return [];
+            }
+        }
+
+        function renderConversations() {
+            const list = document.getElementById('chatList');
+
+            if (conversations.length === 0) {
+                list.innerHTML = `
+                    <div class="empty-state">
+                        <h3>No conversations yet</h3>
+                        <p>Match with someone to start chatting!</p>
+                        <a href="matches.html" style="color: #CE1141; text-decoration: none; font-weight: 600;">Find Matches →</a>
+                    </div>
+                `;
+                return;
+            }
+
+            list.innerHTML = conversations.map(c => `
+                <div class="chat-item ${c.match_id === currentMatchId ? 'active' : ''}"
+                     onclick="openChat(${c.match_id}, '${c.first_name} ${c.last_name}', ${c.other_user_id}, ${c.confirmed})"
+                     data-confirmed="${c.confirmed}">
+                    <div class="chat-item-header">
+                        <span class="chat-item-name">${c.first_name} ${c.last_name}</span>
+                        <div style="display:flex; gap:6px; align-items:center;">
+                            ${!c.confirmed ? '<span style="background:#fef3c7; color:#92400e; font-size:0.7rem; padding:2px 6px; border-radius:10px; font-weight:600;">Pending</span>' : ''}
+                            ${c.unread_count > 0 ? `<span class="unread-badge">${c.unread_count}</span>` : ''}
+                        </div>
+                    </div>
+                    <div class="chat-item-preview">${c.last_message || 'Start a conversation...'}</div>
+                </div>
+            `).join('');
+        }
+
+        async function openChat(matchId, name, otherUserId, confirmed) {
+            currentMatchId = matchId;
+            currentOtherUserId = otherUserId;
+            currentConfirmed = confirmed;
+
+            // Update header with name and confirm button if pending
+            let headerHTML = name;
+            if (!confirmed) {
+                headerHTML += ` <button onclick="confirmMatch()" style="background:#10b981; color:white; border:none; padding:6px 12px; border-radius:6px; font-size:0.85rem; font-weight:600; cursor:pointer; margin-left:12px;">Confirm Match</button>`;
+            }
+            document.getElementById('chatName').innerHTML = headerHTML;
+            document.getElementById('typingName').textContent = name.split(' ')[0];
+            document.getElementById('chatEmpty').classList.add('hidden');
+            document.getElementById('chatActive').classList.remove('hidden');
+
+            renderConversations(); // Update active state
+            await loadMessages();
+
+            // Start polling
+            if (pollInterval) clearInterval(pollInterval);
+            pollInterval = setInterval(pollMessages, 3000);
+        }
+
+        async function confirmMatch() {
+            if (!currentOtherUserId) return;
+
+            if (!confirm('Confirm this as your exclusive match? You can only have one confirmed match.')) return;
+
+            try {
+                const res = await fetch(`${API_BASE}/api/match/confirm`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({ userId: currentOtherUserId })
+                });
+
+                const data = await res.json();
+
+                if (!res.ok) {
+                    alert(data.error || 'Error confirming match');
+                    return;
+                }
+
+                alert('Match confirmed! This is now your exclusive roommate match.');
+                location.reload(); // Reload to update UI
+
+            } catch (err) {
+                console.error('Error confirming match:', err);
+                alert('Error confirming match');
+            }
+        }
+
+        async function loadMessages() {
+            try {
+                const res = await fetch(`${API_BASE}/api/chat/${currentMatchId}/messages`, {
+                    credentials: 'include'
+                });
+
+                if (!res.ok) throw new Error('Failed to load messages');
+
+                const data = await res.json();
+                messages = data.messages;
+                currentUserId = data.current_user_id;
+                renderMessages();
+                scrollToBottom();
+
+            } catch (err) {
+                console.error('Error loading messages:', err);
+            }
+        }
+
+        async function pollMessages() {
+            if (!currentMatchId) return;
+
+            try {
+                // Get new messages
+                const msgRes = await fetch(`${API_BASE}/api/chat/${currentMatchId}/messages`, {
+                    credentials: 'include'
+                });
+                const msgData = await msgRes.json();
+
+                if (msgData.messages.length !== messages.length) {
+                    messages = msgData.messages;
+                    currentUserId = msgData.current_user_id;
+                    renderMessages();
+                    scrollToBottom();
+                }
+
+                // Check typing status
+                const typingRes = await fetch(`${API_BASE}/api/chat/${currentMatchId}/typing-status`, {
+                    credentials: 'include'
+                });
+                const typingData = await typingRes.json();
+
+                const indicator = document.getElementById('typingIndicator');
+                if (typingData.is_typing) {
+                    indicator.classList.add('show');
+                } else {
+                    indicator.classList.remove('show');
+                }
+
+            } catch (err) {
+                console.error('Poll error:', err);
+            }
+        }
+
+        function renderMessages() {
+            const container = document.getElementById('chatMessages');
+
+            if (messages.length === 0) {
+                container.innerHTML = '<div style="text-align:center;color:#9ca3af;padding:40px;">No messages yet. Start the conversation!</div>';
+                return;
+            }
+
+            container.innerHTML = messages.map(m => {
+                const isOwn = m.sender_id == currentUserId;
+                const initials = m.first_name[0] + (m.last_name ? m.last_name[0] : '');
+
+                return `
+                <div class="message ${isOwn ? 'own' : ''}">
+                    ${!isOwn ? `<div class="message-avatar">${initials}</div>` : ''}
+                    <div class="message-content">
+                        <div class="message-bubble">
+                            <p class="message-text">${escapeHtml(m.message)}</p>
+                        </div>
+                        <div class="message-time">${formatTime(m.sent_at)}</div>
+                    </div>
+                    ${isOwn ? `<div class="message-avatar">${initials}</div>` : ''}
+                </div>
+                `;
+            }).join('');
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+
+            if (!message || !currentMatchId) return;
+
+            try {
+                const res = await fetch(`${API_BASE}/api/chat/${currentMatchId}/send`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({ message })
+                });
+
+                if (!res.ok) throw new Error('Failed to send message');
+
+                input.value = '';
+                await loadMessages();
+
+            } catch (err) {
+                console.error('Error sending message:', err);
+                alert('Failed to send message');
+            }
+        }
+
+        // Typing indicator
+        document.addEventListener('DOMContentLoaded', () => {
+            const input = document.getElementById('messageInput');
+            input.addEventListener('input', () => {
+                if (!currentMatchId) return;
+
+                clearTimeout(typingTimeout);
+
+                fetch(`${API_BASE}/api/chat/${currentMatchId}/typing`, {
+                    method: 'POST',
+                    credentials: 'include'
+                }).catch(err => console.error('Typing status error:', err));
+
+                typingTimeout = setTimeout(() => {
+                    // Stop typing after 3 seconds of no input
+                }, 3000);
+            });
+
+            // Send on Enter
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                }
+            });
+        });
+
+        function scrollToBottom() {
+            const container = document.getElementById('chatMessages');
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function formatTime(timestamp) {
+            const date = new Date(timestamp);
+            return date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        document.getElementById('logoutBtn').addEventListener('click', logout);
+
+        // Load conversations first
+        loadConversations().then(() => {
+            // Check if opening specific chat from URL (e.g., chat.html?match=123)
+            const urlParams = new URLSearchParams(window.location.search);
+            const matchId = urlParams.get('match');
+
+            if (matchId) {
+                // Find the conversation for this match
+                const conversation = conversations.find(c => c.match_id == matchId);
+                if (conversation) {
+                    const name = `${conversation.first_name} ${conversation.last_name}`.trim();
+                    openChat(parseInt(matchId), name, conversation.other_user_id, conversation.confirmed);
+                }
+            }
+        });
+
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', () => {
+            if (pollInterval) clearInterval(pollInterval);
+        });
+    </script>
+</body>
+</html>

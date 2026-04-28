@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Skill(caveman)",
+      "Skill(graphify)",
+      "Bash(python:*)",
+      "Bash(pip install:*)",
+      "Bash(php -v:*)",
+      "Bash(choco --version:*)",
+      "Bash(choco install:*)",
+      "Bash(curl -s http://127.0.0.1:8000/api/profile -H \"Cookie: session=.eJwlzjsOwjAMANC7ZGawE-fTXAbjT6BDh6q9C1KHjlXv3iBe3-c9YI9POMY7PKF_xlO8IG5RWZdGPYMwbLF2UM5MrqQsTWEyo8gCkmTOMCYLpDiZUj25YEWT0qUqT2FpwqNknOuSsb6q1VbbMwqvVKT2Vm_trnV3t98fPrBQ1w.Z0K8RQ.D72eP2vRLhshGWiENLyI_L8F84k\")",
+      "Bash(curl:*)",
+      "Bash(set FLASK_DEBUG=true)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

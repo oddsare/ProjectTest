@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Matches - Roomi</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body { background: #f5f6fa; margin: 0; }
+
+        .matches-hero {
+            background: linear-gradient(135deg, #e0f2fe 0%, #dbeafe 100%);
+            color: #1f2937;
+            padding: 48px 0 40px;
+        }
+        .matches-hero-inner {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 32px;
+        }
+        .matches-hero h1 { font-size: 2rem; font-weight: 700; margin: 0 0 6px 0; }
+        .matches-hero p { margin: 0; color: #6b7280; font-size: 1rem; }
+
+        .matches-content {
+            max-width: 1100px;
+            margin: 40px auto;
+            padding: 0 32px;
+        }
+
+        .match-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 24px;
+            margin-top: 32px;
+        }
+
+        .match-card {
+            background: white;
+            border-radius: 14px;
+            padding: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .match-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+        }
+
+        .match-card-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .match-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #fce7f3, #fbcfe8);
+            color: #CE1141;
+            font-weight: 700;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .match-info h3 {
+            margin: 0 0 4px 0;
+            font-size: 1.1rem;
+            color: #1f2937;
+        }
+
+        .match-compat {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .compat-bar {
+            flex: 1;
+            height: 8px;
+            background: #f3f4f6;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .compat-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #CE1141, #e84d6d);
+            border-radius: 4px;
+        }
+
+        .compat-pct {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #CE1141;
+            min-width: 42px;
+        }
+
+        .match-traits {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin: 12px 0;
+        }
+
+        .trait-tag {
+            background: #fef2f2;
+            color: #CE1141;
+            font-size: 0.75rem;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-weight: 500;
+        }
+
+        .match-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .btn-accept {
+            width: 100%;
+            background: #CE1141;
+            color: white;
+            border: none;
+            padding: 14px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .btn-accept:hover { opacity: 0.9; }
+
+        .btn-skip {
+            width: 100%;
+            background: #f3f4f6;
+            color: #6b7280;
+            border: none;
+            padding: 14px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-skip:hover { background: #e5e7eb; }
+
+        .btn-block {
+            width: 100%;
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 8px;
+        }
+
+        .btn-block:hover {
+            background: #fecaca;
+            border-color: #fca5a5;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            color: #9ca3af;
+        }
+
+        .empty-state h2 {
+            font-size: 1.5rem;
+            margin: 0 0 12px 0;
+            color: #6b7280;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.show { display: flex; }
+
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            padding: 32px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #9ca3af;
+        }
+
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation -->
+    <nav class="navbar-embark">
+        <div class="nav-container-embark">
+            <div class="nav-brand-embark">
+                <span style="color: #CE1141; font-weight: 700; font-size: 24px;">Roomi</span>
+            </div>
+            <div class="nav-links-embark">
+                <a href="dashboard.html" class="nav-link-embark">Home</a>
+                <a href="matches.html" class="nav-link-embark active">Matches</a>
+                <a href="chat.html" class="nav-link-embark">Chat</a>
+                <a href="profile.html" class="nav-link-embark">Profile</a>
+            </div>
+            <div class="nav-actions-embark">
+                <button class="btn-text-embark" id="logoutBtn">Log out</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <div class="matches-hero">
+        <div class="matches-hero-inner">
+            <h1>Your Potential Matches</h1>
+            <p>Find your perfect roommate - click to view profiles and accept matches.</p>
+        </div>
+    </div>
+
+    <!-- Content -->
+    <div class="matches-content">
+        <div id="matchGrid" class="match-grid"></div>
+        <div id="emptyState" class="empty-state hidden">
+            <h2>No Matches Yet</h2>
+            <p>Complete your survey to see potential roommates!</p>
+            <a href="survey.html" style="color: #CE1141; text-decoration: none; font-weight: 600;">Take Survey →</a>
+        </div>
+    </div>
+
+    <!-- Profile Modal -->
+    <div id="profileModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalName">Profile</h2>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div id="modalBody"></div>
+        </div>
+    </div>
+
+    <script src="auth.js"></script>
+    <script>
+        checkAuth();
+
+        let matches = [];
+
+        async function loadMatches() {
+            try {
+                const res = await fetch(`${API_BASE}/api/matches`, {
+                    credentials: 'include'
+                });
+
+                if (res.status === 400) {
+                    const data = await res.json();
+                    if (data.code === 'PROFILE_INCOMPLETE') {
+                        window.location.href = 'profile.html';
+                        return;
+                    } else if (data.code === 'SURVEY_INCOMPLETE') {
+                        window.location.href = 'survey.html';
+                        return;
+                    }
+                }
+
+                if (!res.ok) throw new Error('Failed to load matches');
+
+                const data = await res.json();
+                matches = data.matches;
+                renderMatches();
+
+            } catch (err) {
+                console.error('Error loading matches:', err);
+            }
+        }
+
+        function renderMatches() {
+            const grid = document.getElementById('matchGrid');
+            const empty = document.getElementById('emptyState');
+
+            if (matches.length === 0) {
+                grid.innerHTML = '';
+                empty.classList.remove('hidden');
+                return;
+            }
+
+            empty.classList.add('hidden');
+            grid.innerHTML = matches.map(m => {
+                const initials = (m.firstName ? m.firstName[0] : m.email[0]).toUpperCase();
+                const name = m.firstName ? `${m.firstName} ${m.lastName || ''}`.trim() : m.email.split('@')[0];
+                const traits = m.sharedTraits.map(t => `<span class="trait-tag">${t}</span>`).join('');
+
+                return `
+                <div class="match-card" data-user-id="${m.userId}">
+                    <div class="match-card-header">
+                        <div class="match-avatar">${initials}</div>
+                        <div class="match-info">
+                            <h3>${name}</h3>
+                            <div class="match-compat">
+                                <div class="compat-bar">
+                                    <div class="compat-fill" style="width:${m.compatibility}%"></div>
+                                </div>
+                                <span class="compat-pct">${m.compatibility}%</span>
+                            </div>
+                        </div>
+                    </div>
+                    ${traits ? `<div class="match-traits">${traits}</div>` : ''}
+                    <div class="match-actions">
+                        <button class="btn-accept" onclick="sendRequest(${m.userId}, event)">Send Request</button>
+                        <button class="btn-skip" onclick="skipMatch(${m.userId}, event)">Skip</button>
+                        <button class="btn-block" onclick="blockUser(${m.userId}, event)" title="Block this user">Block</button>
+                    </div>
+                </div>
+                `;
+            }).join('');
+
+            // Add click handler to cards (but not buttons)
+            document.querySelectorAll('.match-card').forEach(card => {
+                card.addEventListener('click', (e) => {
+                    if (!e.target.closest('.match-actions')) {
+                        const userId = card.dataset.userId;
+                        showProfile(userId);
+                    }
+                });
+            });
+        }
+
+        async function sendRequest(userId, event) {
+            event.stopPropagation();
+
+            try {
+                const res = await fetch(`${API_BASE}/api/match/accept`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({ userId })
+                });
+
+                const data = await res.json();
+
+                if (!res.ok) {
+                    alert(data.error || 'Error sending request');
+                    return;
+                }
+
+                alert('Request sent! They\'ll see it on their dashboard.');
+                removeMatchCard(userId);
+
+            } catch (err) {
+                console.error('Error sending request:', err);
+                alert('Error sending request');
+            }
+        }
+
+        function skipMatch(userId, event) {
+            event.stopPropagation();
+            removeMatchCard(userId);
+        }
+
+        async function blockUser(userId, event) {
+            event.stopPropagation();
+
+            const match = matches.find(m => m.userId == userId);
+            const name = match && match.firstName ? `${match.firstName} ${match.lastName || ''}`.trim() : 'this user';
+
+            if (!confirm(`Are you sure you want to block ${name}? This will hide them from your matches and they won't be able to contact you.`)) {
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API_BASE}/api/block/${userId}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({ reason: 'Blocked from matches page' })
+                });
+
+                if (res.ok) {
+                    removeMatchCard(userId);
+                    alert(`${name} has been blocked successfully.`);
+                } else {
+                    const data = await res.json();
+                    alert(data.error || 'Failed to block user');
+                }
+            } catch (err) {
+                console.error('Error blocking user:', err);
+                alert('Failed to block user. Please try again.');
+            }
+        }
+
+        function removeMatchCard(userId) {
+            matches = matches.filter(m => m.userId != userId);
+            renderMatches();
+        }
+
+        async function showProfile(userId) {
+            const match = matches.find(m => m.userId == userId);
+            if (!match) return;
+
+            const modal = document.getElementById('profileModal');
+            const name = match.firstName ? `${match.firstName} ${match.lastName || ''}`.trim() : match.email.split('@')[0];
+
+            document.getElementById('modalName').textContent = name;
+            document.getElementById('modalBody').innerHTML = '<p style="text-align:center; color:#9ca3af;">Loading...</p>';
+
+            modal.classList.add('show');
+
+            try {
+                // Fetch full profile
+                const profileRes = await fetch(`${API_BASE}/api/profile/${userId}`, {
+                    credentials: 'include'
+                });
+                const profileData = await profileRes.json();
+                const user = profileData.user;
+
+                // Check if mutually matched
+                const matchCheckRes = await fetch(`${API_BASE}/api/match/check/${userId}`, {
+                    credentials: 'include'
+                });
+                const matchCheck = await matchCheckRes.json();
+
+                // Build profile display
+                const hobbies = user.hobbies ? user.hobbies.split(',').map(h => `<span class="trait-pill">${h.trim()}</span>`).join('') : '<em style="color:#9ca3af;">None listed</em>';
+
+                document.getElementById('modalBody').innerHTML = `
+                    ${user.profile_picture ? `<div style="text-align:center; margin-bottom:20px;"><img src="${user.profile_picture}" style="width:120px; height:120px; border-radius:50%; object-fit:cover;"></div>` : ''}
+                    <p><strong>Compatibility:</strong> <span style="color:#CE1141; font-weight:700;">${match.compatibility}%</span></p>
+                    <p><strong>Year:</strong> ${user.year || 'Not specified'}</p>
+                    <p><strong>Bio:</strong><br>${user.bio || '<em style="color:#9ca3af;">No bio yet</em>'}</p>
+                    <p><strong>Hobbies:</strong><br><div style="display:flex; flex-wrap:wrap; gap:6px; margin-top:8px;">${hobbies}</div></p>
+                    <p><strong>Shared Traits:</strong> ${match.sharedTraits.join(', ') || 'None listed'}</p>
+                    ${matchCheck.mutualMatch ? `
+                        <a href="chat.html?match=${matchCheck.matchId}" style="display:block; background:#CE1141; color:white; text-align:center; padding:12px; border-radius:8px; text-decoration:none; font-weight:600; margin-top:16px;">Start Chat</a>
+                    ` : ''}
+                `;
+
+            } catch (err) {
+                console.error('Error loading profile:', err);
+                document.getElementById('modalBody').innerHTML = '<p style="color:#ef4444;">Failed to load profile</p>';
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('profileModal').classList.remove('show');
+        }
+
+        document.getElementById('logoutBtn').addEventListener('click', logout);
+        loadMatches();
+    </script>
+</body>
+</html>

@@ -1,0 +1,379 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Roommate Survey - Roomi</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body { background: linear-gradient(135deg, #e0f2fe 0%, #dbeafe 100%); min-height: 100vh; }
+        .survey-container { max-width: 700px; margin: 0 auto; padding: 40px 32px; }
+        .survey-header { background: white; border-radius: 14px; padding: 32px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 24px; }
+        form#dormForm { background: white; border-radius: 14px; padding: 32px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        form#dormForm button[type="submit"] {
+            background: #CE1141; color: white; border: none; padding: 13px 32px;
+            border-radius: 8px; font-size: 1rem; font-weight: 700; cursor: pointer;
+            width: 100%; margin-top: 16px; transition: background 0.2s;
+        }
+        form#dormForm button[type="submit"]:hover { background: #a00d31; }
+    </style>
+</head>
+
+<body>
+    <!-- Navigation -->
+    <nav class="navbar-embark">
+        <div class="nav-container-embark">
+            <div class="nav-brand-embark">
+                <span style="color: #CE1141; font-weight: 700; font-size: 24px;">Roomi</span>
+            </div>
+            <div class="nav-links-embark">
+                <a href="dashboard.html" class="nav-link-embark">← Back to Dashboard</a>
+            </div>
+            <div class="nav-actions-embark">
+                <button class="btn-text-embark" id="logoutBtn">Log out</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="survey-container">
+        <div class="survey-header">
+            <h1 class="survey-title">Roommate Matching Survey</h1>
+            <p class="survey-description">Help us find your perfect roommate! Answer these questions honestly to get matched with compatible students.</p>
+        </div>
+
+        <form id="dormForm">
+
+        <label>1. What is your gender?</label>
+        <label class="radio-option">
+            <input type="radio" name="question1" value="Male">
+            Male
+        </label>
+        <label class="radio-option">
+            <input type="radio" name="question1" value="Female">
+            Female
+        </label>
+
+        <br><br>
+
+        <label>2. Which dorm style are you the most interested in?</label>
+        <label class="radio-option">
+            <input type="radio" name="question2" value="Traditional">
+            Traditional Hall
+        </label>
+        <label class="radio-option">
+            <input type="radio" name="question2" value="Contemporary">
+            Contemporary Hall
+        </label>
+        <label class="radio-option">
+            <input type="radio" name="question2" value="Apartment">
+            Apartment
+        </label>
+
+        <br><br>
+
+        <label>
+            3. How clean do you keep your personal living space? <br>
+            (1 = Very Messy, 5 = Spotless)
+        </label>
+        <div class="slider-container">
+            <span>1</span>
+            <input type="range" name="question3" min="1" max="5" value="3" class="slider">
+            <span>5</span>
+        </div>
+        <div class="selected-text">
+            Selected Value: <span class="slider-value">3</span>
+        </div>
+
+        <br><br>
+
+        <label>4. Are you planning on participating in Greek Life?</label>
+        <label class="radio-option">
+            <input type="radio" name="question4" value="YesGreek">
+            Yes
+        </label>
+        <label class="radio-option">
+            <input type="radio" name="question4" value="NoGreek">
+            No
+        </label>
+        <label class="radio-option">
+            <input type="radio" name="question4" value="IdkGreek">
+            Undecided
+        </label>
+
+        <br><br>
+
+        <label>
+            5. How often do you plan on having guests/friends over to your room? <br>
+            (1 = Rarely, 5 = Very Often)
+        </label>
+        <div class="slider-container">
+            <span>1</span>
+            <input type="range" name="question5" min="1" max="5" value="3" class="slider">
+            <span>5</span>
+        </div>
+        <div class="selected-text">
+            Selected Value: <span class="slider-value">3</span>
+        </div>
+
+        <br><br>
+
+        <label>
+            6. Do you prefer the room to be kept cold or warm? <br>
+            (1 = Ice Box, 5 = Toasty)
+        </label>
+        <div class="slider-container">
+            <span>1</span>
+            <input type="range" name="question6" min="1" max="5" value="3" class="slider">
+            <span>5</span>
+        </div>
+        <div class="selected-text">
+            Selected Value: <span class="slider-value">3</span>
+        </div>
+
+        <br><br>
+
+        <label>7. Are you a morning person or a night owl?</label>
+        <label class="radio-option">
+            <input type="radio" name="question7" value="Morning">
+            Morning Person
+        </label>
+        <label class="radio-option">
+            <input type="radio" name="question7" value="Night">
+            Night Owl
+        </label>
+        <label class="radio-option">
+            <input type="radio" name="question7" value="MornAndNight">
+            Depends
+        </label>
+
+        <br><br>
+
+        <label>
+            8. How do you feel about sharing personal items such as snacks or cleaning supplies? <br>
+            (1 = What's mine is mine, 5 = Happy to share everything)
+        </label>
+        <div class="slider-container">
+            <span>1</span>
+            <input type="range" name="question8" min="1" max="5" value="3" class="slider">
+            <span>5</span>
+        </div>
+        <div class="selected-text">
+            Selected Value: <span class="slider-value">3</span>
+        </div>
+
+        <br><br>
+
+        <label>9. Will you be staying in Oxford or going home most weekends?</label>
+        <label class="radio-option">
+            <input type="radio" name="question9" value="Oxford">
+            Staying in Oxford
+        </label>
+        <label class="radio-option">
+            <input type="radio" name="question9" value="Home">
+            Going home
+        </label>
+        <label class="radio-option">
+            <input type="radio" name="question9" value="OxAndHome">
+            Mix of both
+        </label>
+
+        <br><br>
+
+        <label>
+            10. How much alone time do you need in the room? <br>
+            (1 = Very little, 5 = A significant amount)
+        </label>
+        <div class="slider-container">
+            <span>1</span>
+            <input type="range" name="question10" min="1" max="5" value="3" class="slider">
+            <span>5</span>
+        </div>
+        <div class="selected-text">
+            Selected Value: <span class="slider-value">3</span>
+        </div>
+
+        <br><br>
+
+        <label>
+            11. In an Apartment or Contemporary Suite, how do you feel about sharing a bathroom? <br>
+            (1 = Prefer private/limited access, 5 = Totally fine with sharing)
+        </label>
+        <div class="slider-container">
+            <span>1</span>
+            <input type="range" name="question11" min="1" max="5" value="3" class="slider">
+            <span>5</span>
+        </div>
+        <div class="selected-text">
+            Selected Value: <span class="slider-value">3</span>
+        </div>
+
+        <br><br>
+
+        <label>12. Where do you plan on primarily studying?</label>
+        <label class="radio-option">
+            <input type="radio" name="question12" value="DormStudy">
+            Dorm/Room
+        </label>
+        <label class="radio-option">
+            <input type="radio" name="question12" value="CampusStudy">
+            Library/Campus Buildings
+        </label>
+        <label class="radio-option">
+            <input type="radio" name="question12" value="OffCampusStudy">
+            Coffee Shops/Other Off-Campus Locations
+        </label>
+
+        <br><br>
+
+        <label>
+            13. How sensitive are you to noise while sleeping? <br>
+            (1 = Can sleep through a train, 5 = Needs complete silence)
+        </label>
+        <div class="slider-container">
+            <span>1</span>
+            <input type="range" name="question13" min="1" max="5" value="3" class="slider">
+            <span>5</span>
+        </div>
+        <div class="selected-text">
+            Selected Value: <span class="slider-value">3</span>
+        </div>
+
+        <br><br>
+
+        <label>14. What is your typical bedtime on weeknights?</label>
+        <label class="radio-option">
+            <input type="radio" name="question14" value="Before10">
+            Before 10 PM
+        </label>
+        <label class="radio-option">
+            <input type="radio" name="question14" value="Between10And12">
+            Between 10 PM - Midnight
+        </label>
+        <label class="radio-option">
+            <input type="radio" name="question14" value="After12">
+            After Midnight
+        </label>
+
+        <br><br>
+
+        <label>
+            15. How important is it that you and your roommate become close friends? <br>
+            (1 = Just need a co-habitant, 5 = Wants to be best friends)
+        </label>
+        <div class="slider-container">
+            <span>1</span>
+            <input type="range" name="question15" min="1" max="5" value="3" class="slider">
+            <span>5</span>
+        </div>
+        <div class="selected-text">
+            Selected Value: <span class="slider-value">3</span>
+        </div>
+
+        <br><br>
+
+        <label>16. Do you smoke or use nicotine products?</label>
+        <label class="radio-option">
+            <input type="radio" name="question16" value="YesNic">
+            Yes
+        </label>
+        <label class="radio-option">
+            <input type="radio" name="question16" value="NoNic">
+            No
+        </label>
+
+        <br><br>
+
+        <label>
+            17. How often do you plan on having significant others stay over (within housing policy)? <br>
+            (1 = Never, 5 = Frequently)
+        </label>
+        <div class="slider-container">
+            <span>1</span>
+            <input type="range" name="question17" min="1" max="5" value="3" class="slider">
+            <span>5</span>
+        </div>
+        <div class="selected-text">
+            Selected Value: <span class="slider-value">3</span>
+        </div>
+
+        <br><br>
+
+        <label>18. What is your primary focus for your freshman year?</label>
+        <label class="radio-option">
+            <input type="radio" name="question18" value="AcademicsFresh">
+            Academics
+        </label>
+        <label class="radio-option">
+            <input type="radio" name="question18" value="SocialFresh">
+            Social Life
+        </label>
+        <label class="radio-option">
+            <input type="radio" name="question18" value="BothFresh">
+            Balance of both
+        </label>
+
+        <br><br>
+
+        <label>
+            19. How much social drinking are you comfortable with in the room? <br>
+            (1 = None at all, 5 = Completely fine with it)
+        </label>
+        <div class="slider-container">
+            <span>1</span>
+            <input type="range" name="question19" min="1" max="5" value="3" class="slider">
+            <span>5</span>
+        </div>
+        <div class="selected-text">
+            Selected Value: <span class="slider-value">3</span>
+        </div>
+
+        <br><br>
+
+        <label>
+            20. How organized is your daily routine? <br>
+            (1 = Go with the flow, 5 = Strictly scheduled)
+        </label>
+        <div class="slider-container">
+            <span>1</span>
+            <input type="range" name="question20" min="1" max="5" value="3" class="slider">
+            <span>5</span>
+        </div>
+        <div class="selected-text">
+            Selected Value: <span class="slider-value">3</span>
+        </div>
+
+        <br><br>
+
+        <label>
+            21. How comfortable are you with your roommate having friends of the opposite gender over? <br>
+            (1 = Not comfortable, 5 = Completely fine)
+        </label>
+        <div class="slider-container">
+            <span>1</span>
+            <input type="range" name="question21" min="1" max="5" value="3" class="slider">
+            <span>5</span>
+        </div>
+        <div class="selected-text">
+            Selected Value: <span class="slider-value">3</span>
+        </div>
+
+        <br><br>
+
+            <button type="submit">Submit Survey</button>
+
+        </form>
+    </div>
+
+    <script src="auth.js"></script>
+    <script src="script.js"></script>
+    <script>
+        // Check authentication
+        checkAuth();
+
+        // Logout handler
+        document.getElementById('logoutBtn').addEventListener('click', logout);
+    </script>
+
+</body>
+</html>

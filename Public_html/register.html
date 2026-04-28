@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - Roomi</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            overflow: hidden;
+        }
+        body {
+            background: linear-gradient(135deg, #e0f2fe 0%, #dbeafe 100%);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-sizing: border-box;
+        }
+        .auth-card {
+            background: white;
+            border-radius: 16px;
+            padding: 32px 40px;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+        }
+        .auth-logo { text-align: center; margin-bottom: 20px; }
+        .auth-logo h1 { font-size: 2rem; font-weight: 800; color: #CE1141; margin: 0 0 2px 0; }
+        .auth-logo p { color: #6b7280; font-size: 0.85rem; margin: 0; }
+        .auth-card h2 { font-size: 1.3rem; font-weight: 700; color: #1f2937; margin: 0 0 4px 0; text-align: center; }
+        .auth-card .subtitle { color: #6b7280; font-size: 0.85rem; margin: 0 0 20px 0; text-align: center; }
+        .auth-card .subtitle a { color: #CE1141; text-decoration: none; font-weight: 600; }
+        .form-group { margin-bottom: 14px; }
+        .form-group label { display: block; font-size: 0.88rem; font-weight: 600; color: #374151; margin-bottom: 6px; }
+        .form-group input {
+            width: 100%; padding: 11px 14px; border: 1px solid #e5e7eb;
+            border-radius: 8px; font-size: 0.95rem; color: #1f2937;
+            outline: none; box-sizing: border-box; transition: border-color 0.2s;
+        }
+        .form-group input:focus { border-color: #CE1141; }
+        .password-input { position: relative; }
+        .password-input input { padding-right: 44px; }
+        .toggle-password {
+            position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+            background: none; border: none; cursor: pointer; color: #9ca3af; padding: 0; display: flex;
+        }
+        .error-message { font-size: 0.78rem; color: #ef4444; margin-top: 4px; display: block; }
+        .btn-submit {
+            width: 100%; background: #CE1141; color: white; border: none;
+            padding: 13px; border-radius: 8px; font-size: 0.95rem; font-weight: 700;
+            cursor: pointer; transition: background 0.2s; letter-spacing: 0.03em;
+        }
+        .btn-submit:hover { background: #a00d31; }
+        .btn-submit:disabled { opacity: 0.7; cursor: not-allowed; }
+        .terms-text { font-size: 0.75rem; color: #9ca3af; text-align: center; margin-top: 16px; }
+        .terms-text a { color: #CE1141; text-decoration: none; }
+        .alert { padding: 12px 16px; border-radius: 8px; margin-bottom: 20px; font-size: 0.88rem; font-weight: 500; }
+        .alert.error { background: #fef2f2; color: #dc2626; }
+        .alert.success { background: #f0fdf4; color: #16a34a; }
+        .alert.hidden { display: none; }
+        .spinner { display: none; }
+    </style>
+</head>
+<body>
+    <div class="auth-card">
+        <div class="auth-logo">
+            <h1>Roomi</h1>
+            <p>Ole Miss Roommate Matching</p>
+        </div>
+
+        <h2>Create your account</h2>
+        <p class="subtitle">Already have an account? <a href="login_improved.html">Log in</a></p>
+
+        <div id="alert" class="alert hidden"></div>
+
+        <form id="registerForm">
+            <div class="form-group">
+                <label for="firstName">First Name</label>
+                <input type="text" id="firstName" name="firstName" required autocomplete="given-name">
+                <span class="error-message" id="firstNameError"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="lastName">Last Name</label>
+                <input type="text" id="lastName" name="lastName" required autocomplete="family-name">
+                <span class="error-message" id="lastNameError"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Ole Miss Email</label>
+                <input type="email" id="email" name="email" required autocomplete="email" pattern=".*@go\.olemiss\.edu$">
+                <span class="error-message" id="emailError"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password (8+ characters)</label>
+                <div class="password-input">
+                    <input type="password" id="password" name="password" required autocomplete="new-password" minlength="8">
+                    <button type="button" class="toggle-password" id="togglePassword">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                            <circle cx="12" cy="12" r="3"></circle>
+                        </svg>
+                    </button>
+                </div>
+                <span class="error-message" id="passwordError"></span>
+            </div>
+
+            <button type="submit" class="btn-submit" id="registerBtn">
+                <span class="btn-text">CREATE ACCOUNT</span>
+                <span class="spinner"></span>
+            </button>
+
+            <p class="terms-text">By continuing you agree to Roomi's <a href="#">Terms & Conditions</a> and <a href="#">Privacy Policy</a></p>
+        </form>
+    </div>
+
+    <script src="auth.js"></script>
+    <script>
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const firstName = document.getElementById('firstName').value.trim();
+            const lastName = document.getElementById('lastName').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+
+            document.getElementById('firstNameError').textContent = '';
+            document.getElementById('lastNameError').textContent = '';
+            document.getElementById('emailError').textContent = '';
+            document.getElementById('passwordError').textContent = '';
+            hideAlert();
+
+            if (!firstName) { document.getElementById('firstNameError').textContent = 'First name is required'; return; }
+            if (!lastName) { document.getElementById('lastNameError').textContent = 'Last name is required'; return; }
+            if (!email.endsWith('@go.olemiss.edu')) { document.getElementById('emailError').textContent = 'Please use your Ole Miss email (@go.olemiss.edu)'; return; }
+            if (password.length < 8) { document.getElementById('passwordError').textContent = 'Password must be at least 8 characters'; return; }
+
+            setLoading(true);
+
+            try {
+                const response = await fetch(`${API_BASE}/api/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({ firstName, lastName, email, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showAlert('Account created! Redirecting...', 'success');
+                    localStorage.setItem('userEmail', email);
+                    setTimeout(() => { window.location.href = 'dashboard.html'; }, 1500);
+                } else {
+                    if (data.errors && data.errors.length > 0) {
+                        data.errors.forEach(err => {
+                            const el = document.getElementById((err.path || err.param) + 'Error');
+                            if (el) el.textContent = err.msg;
+                        });
+                    } else {
+                        showAlert(data.message || 'Registration failed', 'error');
+                    }
+                }
+            } catch (error) {
+                showAlert('Unable to connect to server. Please try again.', 'error');
+            } finally {
+                setLoading(false);
+            }
+        });
+
+        document.getElementById('togglePassword').addEventListener('click', function() {
+            const input = document.getElementById('password');
+            input.type = input.type === 'password' ? 'text' : 'password';
+            this.classList.toggle('active');
+        });
+    </script>
+</body>
+</html>

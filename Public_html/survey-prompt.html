@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complete Your Profile - Roomi</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar-embark">
+        <div class="nav-container-embark">
+            <div class="nav-brand-embark">
+                <span style="color: #CE1141; font-weight: 700; font-size: 24px;">Roomi</span>
+            </div>
+            <div class="nav-actions-embark" style="margin-left: auto;">
+                <button class="btn-text-embark" id="logoutBtn">Log out</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="survey-prompt-container">
+        <div class="survey-prompt-content">
+            <h1 class="survey-prompt-title">Welcome to Roomi!</h1>
+            <p class="survey-prompt-message">Before you can find your perfect roommate, we need to learn a bit about you.</p>
+            <p class="survey-prompt-submessage">Complete our quick survey to help us match you with compatible roommates.</p>
+
+            <button class="btn-survey-start" id="startSurveyBtn">
+                <span>START SURVEY</span>
+            </button>
+
+            <p class="survey-prompt-time">Takes only 2-3 minutes</p>
+        </div>
+    </div>
+
+    <script src="auth.js"></script>
+    <script>
+        checkAuth();
+
+        // Logout handler
+        document.getElementById('logoutBtn').addEventListener('click', logout);
+
+        // Start survey button handler
+        document.getElementById('startSurveyBtn').addEventListener('click', function() {
+            window.location.href = 'survey.html';
+        });
+    </script>
+</body>
+</html>

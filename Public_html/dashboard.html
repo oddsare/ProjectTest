@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Roomi</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body { background: #f5f6fa; margin: 0; }
+
+        /* Hero */
+        .dash-hero {
+            background: linear-gradient(135deg, #e0f2fe 0%, #dbeafe 100%);
+            color: #1f2937;
+            padding: 48px 0 40px;
+        }
+        .dash-hero-inner {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 32px;
+        }
+        .dash-hero h1 { font-size: 2rem; font-weight: 700; margin: 0 0 6px 0; }
+        .dash-hero p { margin: 0; color: #6b7280; font-size: 1rem; }
+
+        /* Content */
+        .dash-content {
+            max-width: 1100px;
+            margin: 40px auto;
+            padding: 0 32px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        /* Cards */
+        .dash-card {
+            background: white;
+            border-radius: 14px;
+            padding: 32px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .dash-card-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin: 0 0 24px 0;
+        }
+
+        /* Progress */
+        .progress-track {
+            height: 8px;
+            background: #e5e7eb;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 24px;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #CE1141, #e84d6d);
+            border-radius: 4px;
+            transition: width 0.6s ease;
+        }
+        .progress-steps {
+            display: flex;
+            gap: 0;
+        }
+        .prog-step {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .prog-step:not(:last-child)::after {
+            content: '';
+            flex: 1;
+            height: 2px;
+            background: #e5e7eb;
+            margin: 0 12px;
+        }
+        .prog-step.done-step:not(:last-child)::after { background: #CE1141; }
+        .prog-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+        .prog-icon.done { background: #CE1141; color: white; }
+        .prog-icon.pending { background: #e5e7eb; color: #9ca3af; }
+        .prog-label { font-size: 0.85rem; font-weight: 600; color: #1f2937; white-space: nowrap; }
+        .prog-sub { font-size: 0.75rem; color: #9ca3af; }
+
+        /* Survey CTA */
+        .survey-cta {
+            background: linear-gradient(135deg, #CE1141, #a00d31);
+            border-radius: 12px;
+            padding: 24px 32px;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 24px;
+        }
+        .survey-cta h3 { margin: 0 0 4px 0; font-size: 1.1rem; font-weight: 700; }
+        .survey-cta p { margin: 0; font-size: 0.88rem; opacity: 0.85; }
+        .btn-cta-white {
+            background: white;
+            color: #CE1141;
+            border: none;
+            padding: 12px 28px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+            text-decoration: none;
+            white-space: nowrap;
+            transition: opacity 0.2s;
+        }
+        .btn-cta-white:hover { opacity: 0.9; }
+
+        /* Matches */
+        .matches-list { display: flex; flex-direction: column; }
+        .match-card {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px 0;
+            border-bottom: 1px solid #f3f4f6;
+        }
+        .match-card:last-child { border-bottom: none; }
+        .match-avatar-sm {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #fce7f3, #fbcfe8);
+            color: #CE1141;
+            font-weight: 700;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .match-details { flex: 1; min-width: 0; }
+        .match-name { font-size: 0.95rem; font-weight: 600; color: #1f2937; margin: 0 0 6px 0; }
+        .match-bar-row { display: flex; align-items: center; gap: 10px; }
+        .match-bar { flex: 1; height: 6px; background: #f3f4f6; border-radius: 3px; overflow: hidden; }
+        .match-bar-fill { height: 100%; background: linear-gradient(90deg, #CE1141, #e84d6d); border-radius: 3px; }
+        .match-pct { font-size: 0.85rem; font-weight: 700; color: #CE1141; min-width: 38px; text-align: right; }
+        .match-traits { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+        .trait-pill {
+            background: #fef2f2;
+            color: #CE1141;
+            font-size: 0.7rem;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-weight: 500;
+        }
+        .matches-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+        .retake-link { font-size: 0.82rem; color: #CE1141; text-decoration: none; font-weight: 500; }
+        .empty-msg { color: #9ca3af; font-size: 0.9rem; text-align: center; padding: 32px 0; }
+
+        .match-card {
+            cursor: pointer;
+            transition: background 0.2s;
+            border-radius: 8px;
+            padding: 16px;
+            margin: 0 -16px;
+        }
+        .match-card:hover { background: #f9fafb; }
+
+        /* Profile Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal.show { display: flex; }
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            padding: 32px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #9ca3af;
+        }
+
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation -->
+    <nav class="navbar-embark">
+        <div class="nav-container-embark">
+            <div class="nav-brand-embark">
+                <span style="color: #CE1141; font-weight: 700; font-size: 24px;">Roomi</span>
+            </div>
+            <div class="nav-links-embark">
+                <a href="dashboard.html" class="nav-link-embark active">Home</a>
+                <a href="matches.html" class="nav-link-embark">Matches</a>
+                <a href="chat.html" class="nav-link-embark">Chat</a>
+                <a href="profile.html" class="nav-link-embark">Profile</a>
+            </div>
+            <div class="nav-actions-embark">
+                <button class="btn-text-embark" id="logoutBtn">Log out</button>
+                <a href="profile.html" class="btn-primary-embark">Settings</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <div class="dash-hero">
+        <div class="dash-hero-inner">
+            <h1>Welcome back, <span id="displayName">...</span>!</h1>
+            <p>Find your perfect roommate at Ole Miss.</p>
+        </div>
+    </div>
+
+    <!-- Content -->
+    <div class="dash-content">
+
+        <!-- Progress Card -->
+        <div class="dash-card">
+            <p class="dash-card-title">Setup Progress</p>
+            <div class="progress-track">
+                <div class="progress-fill" id="progressFill" style="width: 33%"></div>
+            </div>
+            <div class="progress-steps">
+                <div class="prog-step done-step" id="step1">
+                    <div class="prog-icon done">1</div>
+                    <div>
+                        <div class="prog-label">Account</div>
+                        <div class="prog-sub">Complete</div>
+                    </div>
+                </div>
+                <div class="prog-step" id="step2">
+                    <div class="prog-icon pending" id="step2Icon">2</div>
+                    <div>
+                        <div class="prog-label">Profile</div>
+                        <div class="prog-sub" id="step2Sub">Incomplete</div>
+                    </div>
+                </div>
+                <div class="prog-step" id="step3">
+                    <div class="prog-icon pending" id="step3Icon">3</div>
+                    <div>
+                        <div class="prog-label">Survey</div>
+                        <div class="prog-sub" id="step3Sub">Not started</div>
+                    </div>
+                </div>
+                <div class="prog-step" id="step4">
+                    <div class="prog-icon pending" id="step4Icon">4</div>
+                    <div>
+                        <div class="prog-label">Matches</div>
+                        <div class="prog-sub" id="step4Sub">Pending</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Survey CTA (hidden once survey done) -->
+        <div class="survey-cta hidden" id="surveyCta">
+            <div>
+                <h3>Complete Your Roommate Survey</h3>
+                <p>Answer 21 questions so we can match you with compatible Ole Miss students. Takes 2-3 minutes.</p>
+            </div>
+            <a href="survey-prompt.html" class="btn-cta-white">Start Survey →</a>
+        </div>
+
+        <!-- Accepted Requests Card -->
+        <div class="dash-card" id="acceptedCard" style="display:none; background:linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);">
+            <p class="dash-card-title" style="color:#065f46;">Request Accepted!</p>
+            <div id="acceptedList"></div>
+        </div>
+
+        <!-- Incoming Requests Card -->
+        <div class="dash-card" id="requestsCard" style="display:none;">
+            <p class="dash-card-title">Incoming Requests</p>
+            <div id="requestsList"></div>
+        </div>
+
+        <!-- Matches Card -->
+        <div class="dash-card">
+            <div class="matches-header">
+                <p class="dash-card-title" style="margin:0">Your Top Matches</p>
+                <a href="survey.html" class="retake-link hidden" id="retakeLink">Retake Survey</a>
+            </div>
+            <div id="matchesList">
+                <p class="empty-msg" id="matchesPlaceholder">Complete the survey to see your matches.</p>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Profile Modal -->
+    <div id="profileModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalName">Profile</h2>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div id="modalBody"></div>
+        </div>
+    </div>
+
+    <script src="auth.js"></script>
+    <script>
+        checkAuth();
+
+        let allMatches = [];
+
+        async function loadDashboard() {
+            try {
+                const profileRes = await fetch(`${API_BASE}/api/profile`, {
+                    credentials: 'include'
+                });
+
+                if (!profileRes.ok) {
+                    window.location.href = 'login_improved.html';
+                    return;
+                }
+
+                const { user } = await profileRes.json();
+                const name = user.first_name || user.email.split('@')[0];
+                document.getElementById('displayName').textContent = name;
+
+                // Load incoming requests and accepted notifications
+                loadIncomingRequests();
+                loadAcceptedRequests();
+
+                const matchesRes = await fetch(`${API_BASE}/api/matches`, {
+                    credentials: 'include'
+                });
+
+                if (matchesRes.status === 400) {
+                    const errData = await matchesRes.json();
+                    if (errData.code === 'PROFILE_INCOMPLETE') {
+                        setProgress(33, false, false, true);
+                    } else {
+                        // Profile done, survey not done
+                        document.getElementById('surveyCta').classList.remove('hidden');
+                        setProgress(50, false, false, false);
+                    }
+                } else if (matchesRes.ok) {
+                    const { matches } = await matchesRes.json();
+                    document.getElementById('retakeLink').classList.remove('hidden');
+                    renderMatches(matches);
+                    setProgress(matches.length > 0 ? 100 : 75, true, matches.length > 0, false);
+                }
+
+            } catch (err) {
+                console.error('Dashboard error:', err);
+            }
+        }
+
+        async function loadIncomingRequests() {
+            try {
+                const res = await fetch(`${API_BASE}/api/match/requests/incoming`, {
+                    credentials: 'include'
+                });
+
+                if (!res.ok) return;
+
+                const { requests } = await res.json();
+
+                if (requests.length === 0) return;
+
+                document.getElementById('requestsCard').style.display = 'block';
+                renderRequests(requests);
+
+            } catch (err) {
+                console.error('Error loading requests:', err);
+            }
+        }
+
+        async function loadAcceptedRequests() {
+            try {
+                const res = await fetch(`${API_BASE}/api/match/requests/accepted`, {
+                    credentials: 'include'
+                });
+
+                if (!res.ok) return;
+
+                const { accepted } = await res.json();
+
+                if (accepted.length === 0) return;
+
+                document.getElementById('acceptedCard').style.display = 'block';
+                renderAccepted(accepted);
+
+            } catch (err) {
+                console.error('Error loading accepted requests:', err);
+            }
+        }
+
+        function renderAccepted(accepted) {
+            // Filter out seen notifications
+            const seenIds = JSON.parse(localStorage.getItem('seenAccepted') || '[]');
+            const unseenAccepted = accepted.filter(a => !seenIds.includes(a.to_user_id));
+
+            if (unseenAccepted.length === 0) {
+                document.getElementById('acceptedCard').style.display = 'none';
+                return;
+            }
+
+            const list = document.getElementById('acceptedList');
+            list.innerHTML = unseenAccepted.map(a => {
+                const name = a.first_name ? `${a.first_name} ${a.last_name || ''}`.trim() : a.email.split('@')[0];
+
+                return `
+                <div style="padding:16px; background:white; border-radius:8px; margin-bottom:12px;">
+                    <p style="margin:0 0 8px 0; color:#065f46; font-weight:600;">${name} accepted your request!</p>
+                    <p style="margin:0 0 12px 0; font-size:0.85rem; color:#047857;">You can now chat before confirming the match.</p>
+                    <a href="chat.html" onclick="markAcceptedSeen(${a.to_user_id})" style="display:inline-block; background:#10b981; color:white; padding:8px 16px; border-radius:6px; text-decoration:none; font-size:0.9rem; font-weight:600;">Open Chat</a>
+                </div>`;
+            }).join('');
+        }
+
+        function markAcceptedSeen(userId) {
+            const seenIds = JSON.parse(localStorage.getItem('seenAccepted') || '[]');
+            if (!seenIds.includes(userId)) {
+                seenIds.push(userId);
+                localStorage.setItem('seenAccepted', JSON.stringify(seenIds));
+            }
+        }
+
+        function renderRequests(requests) {
+            const list = document.getElementById('requestsList');
+            list.innerHTML = '<div class="matches-list">' + requests.map(r => {
+                const initials = (r.first_name ? r.first_name[0] : r.email[0]).toUpperCase();
+                const name = r.first_name ? `${r.first_name} ${r.last_name || ''}`.trim() : r.email.split('@')[0];
+
+                return `
+                <div class="match-card" style="margin-bottom:0; border-bottom:1px solid #f3f4f6; border-radius:0; padding:16px 0;">
+                    <div class="match-avatar-sm">${initials}</div>
+                    <div class="match-details">
+                        <p class="match-name">${name}</p>
+                        <p style="font-size:0.85rem; color:#6b7280; margin:4px 0;">wants to connect</p>
+                        <div style="display:flex; gap:8px; margin-top:12px;">
+                            <button onclick="acceptRequest(${r.from_user_id})" style="flex:1; background:#10b981; color:white; border:none; padding:8px 12px; border-radius:6px; font-size:0.85rem; font-weight:600; cursor:pointer;">Accept</button>
+                            <button onclick="denyRequest(${r.from_user_id})" style="flex:1; background:#f3f4f6; color:#6b7280; border:none; padding:8px 12px; border-radius:6px; font-size:0.85rem; font-weight:600; cursor:pointer;">Deny</button>
+                        </div>
+                    </div>
+                </div>`;
+            }).join('') + '</div>';
+        }
+
+        async function acceptRequest(fromUserId) {
+            try {
+                const res = await fetch(`${API_BASE}/api/match/request/accept`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({ fromUserId })
+                });
+
+                const data = await res.json();
+
+                if (!res.ok) {
+                    alert(data.error || 'Error accepting request');
+                    return;
+                }
+
+                alert('Request accepted! Go to Chat to start talking.');
+                window.location.href = 'chat.html';
+
+            } catch (err) {
+                console.error('Error accepting request:', err);
+                alert('Error accepting request');
+            }
+        }
+
+        async function denyRequest(fromUserId) {
+            if (!confirm('Deny this request?')) return;
+
+            try {
+                const res = await fetch(`${API_BASE}/api/match/request/deny`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({ fromUserId })
+                });
+
+                if (!res.ok) {
+                    alert('Error denying request');
+                    return;
+                }
+
+                location.reload(); // Refresh to update UI
+
+            } catch (err) {
+                console.error('Error denying request:', err);
+                alert('Error denying request');
+            }
+        }
+
+        function setProgress(pct, surveyDone, matchesDone, profileIncomplete) {
+            document.getElementById('progressFill').style.width = pct + '%';
+
+            if (!profileIncomplete) {
+                document.getElementById('step2').classList.add('done-step');
+                document.getElementById('step2Icon').className = 'prog-icon done';
+                document.getElementById('step2Icon').textContent = '2';
+                document.getElementById('step2Sub').textContent = 'Complete';
+            } else {
+                // Show profile CTA
+                document.getElementById('surveyCta').innerHTML = `
+                    <div>
+                        <h3>Complete Your Profile</h3>
+                        <p>Add your bio, hobbies, and year before finding matches.</p>
+                    </div>
+                    <a href="profile.html" class="btn-cta-white">Go to Profile →</a>`;
+                document.getElementById('surveyCta').classList.remove('hidden');
+            }
+
+            if (surveyDone) {
+                document.getElementById('step3').classList.add('done-step');
+                document.getElementById('step3Icon').className = 'prog-icon done';
+                document.getElementById('step3Icon').textContent = '3';
+                document.getElementById('step3Sub').textContent = 'Complete';
+            }
+
+            if (matchesDone) {
+                document.getElementById('step4').classList.add('done-step');
+                document.getElementById('step4Icon').className = 'prog-icon done';
+                document.getElementById('step4Icon').textContent = '4';
+                document.getElementById('step4Sub').textContent = 'Complete';
+            } else if (surveyDone) {
+                document.getElementById('step4Sub').textContent = 'No matches yet';
+            }
+        }
+
+        function renderMatches(matches) {
+            allMatches = matches; // Store for later
+            const list = document.getElementById('matchesList');
+            if (matches.length === 0) {
+                list.innerHTML = '<p class="empty-msg">No other users have completed the survey yet. Check back soon!</p>';
+                return;
+            }
+            list.innerHTML = '<div class="matches-list">' + matches.map(m => {
+                const initials = (m.firstName ? m.firstName[0] : m.email[0]).toUpperCase();
+                const name = m.firstName ? `${m.firstName} ${m.lastName || ''}`.trim() : m.email.split('@')[0];
+                const traits = m.sharedTraits.map(t => `<span class="trait-pill">${t}</span>`).join('');
+                return `
+                <div class="match-card" data-user-id="${m.userId}" onclick="showProfile(${m.userId})">
+                    <div class="match-avatar-sm">${initials}</div>
+                    <div class="match-details">
+                        <p class="match-name">${name}</p>
+                        <div class="match-bar-row">
+                            <div class="match-bar"><div class="match-bar-fill" style="width:${m.compatibility}%"></div></div>
+                            <span class="match-pct">${m.compatibility}%</span>
+                        </div>
+                        ${traits ? `<div class="match-traits">${traits}</div>` : ''}
+                    </div>
+                </div>`;
+            }).join('') + '</div>';
+        }
+
+        async function showProfile(userId) {
+            const match = allMatches.find(m => m.userId == userId);
+            if (!match) return;
+
+            const modal = document.getElementById('profileModal');
+            const name = match.firstName ? `${match.firstName} ${match.lastName || ''}`.trim() : match.email.split('@')[0];
+
+            document.getElementById('modalName').textContent = name;
+            document.getElementById('modalBody').innerHTML = '<p style="text-align:center; color:#9ca3af;">Loading...</p>';
+
+            modal.classList.add('show');
+
+            try {
+                // Fetch full profile
+                const profileRes = await fetch(`${API_BASE}/api/profile/${userId}`, {
+                    credentials: 'include'
+                });
+                const profileData = await profileRes.json();
+                const user = profileData.user;
+
+                // Check match status
+                const matchCheckRes = await fetch(`${API_BASE}/api/match/check/${userId}`, {
+                    credentials: 'include'
+                });
+                const matchCheck = await matchCheckRes.json();
+
+                // Check if pending request exists
+                const reqCheckRes = await fetch(`${API_BASE}/api/chat/conversations`, {
+                    credentials: 'include'
+                });
+                const convData = await reqCheckRes.json();
+                const pendingConv = convData.conversations.find(c => c.other_user_id == userId && !c.confirmed);
+
+                // Build profile display
+                const hobbies = user.hobbies ? user.hobbies.split(',').map(h => `<span class="trait-pill">${h.trim()}</span>`).join('') : '<em style="color:#9ca3af;">None listed</em>';
+
+                document.getElementById('modalBody').innerHTML = `
+                    ${user.profile_picture ? `<div style="text-align:center; margin-bottom:20px;"><img src="${user.profile_picture}" style="width:120px; height:120px; border-radius:50%; object-fit:cover;"></div>` : ''}
+                    <p><strong>Compatibility:</strong> <span style="color:#CE1141; font-weight:700;">${match.compatibility}%</span></p>
+                    <p><strong>Year:</strong> ${user.year || 'Not specified'}</p>
+                    <p><strong>Bio:</strong><br>${user.bio || '<em style="color:#9ca3af;">No bio yet</em>'}</p>
+                    <p><strong>Hobbies:</strong><br><div style="display:flex; flex-wrap:wrap; gap:6px; margin-top:8px;">${hobbies}</div></p>
+                    <p><strong>Shared Traits:</strong> ${match.sharedTraits.join(', ') || 'None listed'}</p>
+                    ${matchCheck.mutualMatch ? `
+                        <a href="chat.html?match=${matchCheck.matchId}" style="display:block; background:#CE1141; color:white; text-align:center; padding:12px; border-radius:8px; text-decoration:none; font-weight:600; margin-top:16px;">Open Chat (Confirmed)</a>
+                    ` : pendingConv ? `
+                        <a href="chat.html?match=${pendingConv.match_id}" style="display:block; background:#10b981; color:white; text-align:center; padding:12px; border-radius:8px; text-decoration:none; font-weight:600; margin-top:16px;">Open Chat (Pending)</a>
+                    ` : `
+                        <div style="margin-top:16px; display:flex; gap:12px;">
+                            <button onclick="sendRequest(${userId}, event)" style="flex:1; background:#CE1141; color:white; border:none; padding:10px; border-radius:8px; font-weight:600; cursor:pointer;">Send Request</button>
+                            <button onclick="closeModal()" style="flex:1; background:#f3f4f6; color:#6b7280; border:none; padding:10px; border-radius:8px; font-weight:600; cursor:pointer;">Skip</button>
+                        </div>
+                    `}
+                `;
+
+            } catch (err) {
+                console.error('Error loading profile:', err);
+                document.getElementById('modalBody').innerHTML = '<p style="color:#ef4444;">Failed to load profile</p>';
+            }
+        }
+
+        async function sendRequest(userId, event) {
+            event.stopPropagation();
+
+            try {
+                const res = await fetch(`${API_BASE}/api/match/accept`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({ userId })
+                });
+
+                const data = await res.json();
+
+                if (!res.ok) {
+                    alert(data.error || 'Error sending request');
+                    return;
+                }
+
+                alert('Request sent! They\'ll see it on their dashboard.');
+                closeModal();
+
+            } catch (err) {
+                console.error('Error sending request:', err);
+                alert('Error sending request');
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('profileModal').classList.remove('show');
+        }
+
+        document.getElementById('logoutBtn').addEventListener('click', logout);
+        loadDashboard();
+    </script>
+</body>
+</html>

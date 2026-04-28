@@ -1,0 +1,51 @@
+# Environment Variables - NEVER commit secrets!
+.env
+.env.local
+.env.production
+RAILWAY_SECRETS.txt
+
+# Database - Don't commit your database file
+*.db
+*.sqlite
+*.sqlite3
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+
+# Uploads - User-generated content
+uploads/
+*.jpg
+*.jpeg
+*.png
+*.gif
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Testing/Development Scripts - Don't deploy these
+create_test_accounts.py
+check_db.py
+fix_*.py
+update_*.py
+verify_*.py
+
+# Railway
+.railway/
