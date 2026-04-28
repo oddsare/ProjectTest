@@ -127,30 +127,6 @@
             border: 3px solid #fecaca;
             margin-bottom: 12px;
         }
-        .profile-complete-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            background: #d1fae5;
-            color: #065f46;
-            font-size: 0.78rem;
-            font-weight: 600;
-            padding: 3px 10px;
-            border-radius: 20px;
-            margin-top: 6px;
-        }
-        .profile-incomplete-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            background: #fef3c7;
-            color: #92400e;
-            font-size: 0.78rem;
-            font-weight: 600;
-            padding: 3px 10px;
-            border-radius: 20px;
-            margin-top: 6px;
-        }
     </style>
 </head>
 <body>
@@ -194,7 +170,6 @@
                             <button type="button" onclick="document.getElementById('profilePicture').click()" style="background:none; border:none; color:#CE1141; font-size:0.8rem; font-weight:600; cursor:pointer; margin-top:6px;">Change Photo</button>
                             <h2 class="profile-name" id="displayName">...</h2>
                             <p class="profile-email-display" id="emailDisplay">...</p>
-                            <div id="completeBadge"></div>
                         </div>
                         <div class="profile-stats">
                             <div class="stat-item">
@@ -406,12 +381,6 @@
                 if (user.profile_picture) {
                     showProfilePic(user.profile_picture);
                 }
-
-                // Badge
-                const isComplete = user.bio && user.year_in_school && user.major && user.hobbies;
-                document.getElementById('completeBadge').innerHTML = isComplete
-                    ? '<span class="profile-complete-badge">Profile Complete</span>'
-                    : '<span class="profile-incomplete-badge">Profile Incomplete</span>';
 
             } catch (err) {
                 console.error('Error loading profile:', err);
@@ -641,7 +610,6 @@
                     showAlert('Profile saved successfully!', 'success');
                     document.getElementById('yearDisplay').textContent = year;
                     document.getElementById('majorDisplay').textContent = major;
-                    document.getElementById('completeBadge').innerHTML = '<span class="profile-complete-badge">Profile Complete</span>';
                     croppedBlob = null;
                 } else {
                     showAlert(data.message || 'Failed to save profile', 'error');
