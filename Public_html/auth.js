@@ -2,9 +2,11 @@
 // SHARED AUTHENTICATION UTILITIES
 // ================================================================================
 
-// Auto-detect API base: local dev vs Turing server
+// Auto-detect API base: local dev, Railway, or Turing server
 const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
     ? '' // Local Flask dev server
+    : window.location.hostname.includes('railway.app')
+    ? '' // Railway deployment (root path)
     : '/~group4sp26'; // Turing server
 
 // Show/hide loading state on buttons
