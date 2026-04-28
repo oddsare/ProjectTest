@@ -27,7 +27,6 @@ form.addEventListener("submit", async function (event) {
         const data = await response.json();
 
         if (response.ok) {
-            alert("Survey submitted! Redirecting to your matches...");
             window.location.href = 'dashboard.html';
         } else {
             alert(data.message || 'Failed to submit survey. Please try again.');
