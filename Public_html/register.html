@@ -109,6 +109,20 @@
                 <span class="error-message" id="passwordError"></span>
             </div>
 
+            <div class="form-group">
+                <label for="confirmPassword">Confirm Password</label>
+                <div class="password-input">
+                    <input type="password" id="confirmPassword" name="confirmPassword" required autocomplete="new-password" minlength="8">
+                    <button type="button" class="toggle-password" id="toggleConfirmPassword">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                            <circle cx="12" cy="12" r="3"></circle>
+                        </svg>
+                    </button>
+                </div>
+                <span class="error-message" id="confirmPasswordError"></span>
+            </div>
+
             <button type="submit" class="btn-submit" id="registerBtn">
                 <span class="btn-text">CREATE ACCOUNT</span>
                 <span class="spinner"></span>
@@ -126,17 +140,20 @@
             const lastName = document.getElementById('lastName').value.trim();
             const email = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
 
             document.getElementById('firstNameError').textContent = '';
             document.getElementById('lastNameError').textContent = '';
             document.getElementById('emailError').textContent = '';
             document.getElementById('passwordError').textContent = '';
+            document.getElementById('confirmPasswordError').textContent = '';
             hideAlert();
 
             if (!firstName) { document.getElementById('firstNameError').textContent = 'First name is required'; return; }
             if (!lastName) { document.getElementById('lastNameError').textContent = 'Last name is required'; return; }
             if (!email.endsWith('@go.olemiss.edu')) { document.getElementById('emailError').textContent = 'Please use your Ole Miss email (@go.olemiss.edu)'; return; }
             if (password.length < 8) { document.getElementById('passwordError').textContent = 'Password must be at least 8 characters'; return; }
+            if (password !== confirmPassword) { document.getElementById('confirmPasswordError').textContent = 'Passwords do not match'; return; }
 
             setLoading(true);
 
@@ -172,6 +189,12 @@
 
         document.getElementById('togglePassword').addEventListener('click', function() {
             const input = document.getElementById('password');
+            input.type = input.type === 'password' ? 'text' : 'password';
+            this.classList.toggle('active');
+        });
+
+        document.getElementById('toggleConfirmPassword').addEventListener('click', function() {
+            const input = document.getElementById('confirmPassword');
             input.type = input.type === 'password' ? 'text' : 'password';
             this.classList.toggle('active');
         });
