@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Roomi</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #e0f2fe 0%, #dbeafe 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .admin-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        .admin-header {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .admin-header h1 {
+            color: #CE1141;
+            margin: 0 0 8px 0;
+            font-size: 2rem;
+        }
+        .admin-header p {
+            color: #6b7280;
+            margin: 0;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .stat-card h3 {
+            margin: 0 0 8px 0;
+            font-size: 2rem;
+            color: #CE1141;
+        }
+        .stat-card p {
+            margin: 0;
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+        }
+        .tab {
+            background: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            color: #6b7280;
+            transition: all 0.2s;
+        }
+        .tab.active {
+            background: #CE1141;
+            color: white;
+        }
+        .tab:hover:not(.active) {
+            background: #f3f4f6;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .data-table {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th {
+            background: #f9fafb;
+            padding: 12px 16px;
+            text-align: left;
+            font-weight: 600;
+            color: #374151;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        td {
+            padding: 12px 16px;
+            border-bottom: 1px solid #f3f4f6;
+            color: #6b7280;
+        }
+        tr:hover {
+            background: #f9fafb;
+        }
+        .btn {
+            padding: 6px 12px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-right: 6px;
+            transition: all 0.2s;
+        }
+        .btn-danger {
+            background: #fef2f2;
+            color: #dc2626;
+        }
+        .btn-danger:hover {
+            background: #dc2626;
+            color: white;
+        }
+        .btn-primary {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+        .btn-primary:hover {
+            background: #1e40af;
+            color: white;
+        }
+        .btn-success {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        .btn-success:hover {
+            background: #065f46;
+            color: white;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal.active {
+            display: flex;
+        }
+        .modal-content {
+            background: white;
+            padding: 32px;
+            border-radius: 16px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .modal-content h2 {
+            margin: 0 0 20px 0;
+            color: #1f2937;
+        }
+        .form-group {
+            margin-bottom: 16px;
+        }
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 6px;
+            font-size: 0.9rem;
+        }
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            box-sizing: border-box;
+        }
+        .form-group textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+        }
+        .modal-actions button {
+            flex: 1;
+            padding: 12px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-cancel {
+            background: #f3f4f6;
+            color: #6b7280;
+        }
+        .btn-cancel:hover {
+            background: #e5e7eb;
+        }
+        .btn-submit {
+            background: #CE1141;
+            color: white;
+        }
+        .btn-submit:hover {
+            background: #a00d31;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 48px 24px;
+            color: #9ca3af;
+        }
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .badge-success {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        .badge-warning {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        .badge-info {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 16px;
+            color: #CE1141;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        .alert {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+        .alert-success {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        .alert-error {
+            background: #fef2f2;
+            color: #dc2626;
+        }
+        .match-creator {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .match-creator h3 {
+            margin: 0 0 16px 0;
+            color: #1f2937;
+        }
+        .match-selector {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 16px;
+            align-items: center;
+        }
+        .match-selector select {
+            padding: 10px 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 0.95rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <a href="dashboard.html" class="back-link">← Back to Dashboard</a>
+
+        <div class="admin-header">
+            <h1>Admin Panel</h1>
+            <p>Manage users, matches, and system data</p>
+        </div>
+
+        <div id="alert-container"></div>
+
+        <!-- Statistics -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3 id="stat-users">-</h3>
+                <p>Total Users</p>
+            </div>
+            <div class="stat-card">
+                <h3 id="stat-matches">-</h3>
+                <p>Total Matches</p>
+            </div>
+            <div class="stat-card">
+                <h3 id="stat-profiles">-</h3>
+                <p>Completed Profiles</p>
+            </div>
+            <div class="stat-card">
+                <h3 id="stat-surveys">-</h3>
+                <p>Completed Surveys</p>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('users')">Users</button>
+            <button class="tab" onclick="switchTab('matches')">All Matches</button>
+            <button class="tab" onclick="switchTab('potential')">Potential Matches</button>
+        </div>
+
+        <!-- Users Tab -->
+        <div id="tab-users" class="tab-content active">
+            <div class="data-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Profile</th>
+                            <th>Survey</th>
+                            <th>Admin</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="users-table-body">
+                        <tr><td colspan="7" class="empty-state">Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Matches Tab -->
+        <div id="tab-matches" class="tab-content">
+            <div class="data-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Match ID</th>
+                            <th>User 1</th>
+                            <th>User 2</th>
+                            <th>Matched At</th>
+                            <th>Messages</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="matches-table-body">
+                        <tr><td colspan="6" class="empty-state">Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Potential Matches Tab -->
+        <div id="tab-potential" class="tab-content">
+            <div class="match-creator">
+                <h3>Create Match</h3>
+                <div class="match-selector">
+                    <select id="match-user1">
+                        <option value="">Select User 1</option>
+                    </select>
+                    <span style="font-size: 1.5rem; color: #CE1141;">+</span>
+                    <select id="match-user2">
+                        <option value="">Select User 2</option>
+                    </select>
+                </div>
+                <button class="btn btn-success" style="margin-top: 16px; width: 100%;" onclick="createMatch()">Create Match</button>
+            </div>
+
+            <div class="data-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Year</th>
+                            <th>Major</th>
+                            <th>Survey</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="potential-table-body">
+                        <tr><td colspan="7" class="empty-state">Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit User Modal -->
+    <div id="edit-user-modal" class="modal">
+        <div class="modal-content">
+            <h2>Edit User Profile</h2>
+            <form id="edit-user-form">
+                <input type="hidden" id="edit-user-id">
+
+                <div class="form-group">
+                    <label>Bio</label>
+                    <textarea id="edit-bio"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Year</label>
+                    <select id="edit-year">
+                        <option value="">Select Year</option>
+                        <option value="Freshman">Freshman</option>
+                        <option value="Sophomore">Sophomore</option>
+                        <option value="Junior">Junior</option>
+                        <option value="Senior">Senior</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Major</label>
+                    <input type="text" id="edit-major">
+                </div>
+
+                <div class="form-group">
+                    <label>Hobbies</label>
+                    <input type="text" id="edit-hobbies">
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn-cancel" onclick="closeModal()">Cancel</button>
+                    <button type="submit" class="btn-submit">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="auth.js"></script>
+    <script>
+        let currentUserId = null;
+
+        // Check admin access
+        async function checkAdmin() {
+            try {
+                const res = await fetch(`${API_BASE}/api/admin/check`, {
+                    credentials: 'include'
+                });
+                const data = await res.json();
+                if (!data.is_admin) {
+                    window.location.href = 'dashboard.html';
+                }
+            } catch (err) {
+                window.location.href = 'login_improved.html';
+            }
+        }
+
+        // Load statistics
+        async function loadStats() {
+            try {
+                const res = await fetch(`${API_BASE}/api/admin/stats`, {
+                    credentials: 'include'
+                });
+                const data = await res.json();
+
+                document.getElementById('stat-users').textContent = data.total_users;
+                document.getElementById('stat-matches').textContent = data.total_matches;
+                document.getElementById('stat-profiles').textContent = data.completed_profiles;
+                document.getElementById('stat-surveys').textContent = data.completed_surveys;
+            } catch (err) {
+                console.error('Error loading stats:', err);
+            }
+        }
+
+        // Load users
+        async function loadUsers() {
+            try {
+                const res = await fetch(`${API_BASE}/api/admin/users`, {
+                    credentials: 'include'
+                });
+                const data = await res.json();
+
+                const tbody = document.getElementById('users-table-body');
+                if (data.users.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="7" class="empty-state">No users found</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = data.users.map(u => `
+                    <tr>
+                        <td>${u.id}</td>
+                        <td>${u.first_name || ''} ${u.last_name || ''}</td>
+                        <td>${u.email}</td>
+                        <td>${u.profile_completed ? '<span class="badge badge-success">Complete</span>' : '<span class="badge badge-warning">Incomplete</span>'}</td>
+                        <td>${u.has_survey ? '<span class="badge badge-success">Complete</span>' : '<span class="badge badge-warning">Incomplete</span>'}</td>
+                        <td>${u.is_admin ? '<span class="badge badge-info">Admin</span>' : ''}</td>
+                        <td>
+                            <button class="btn btn-primary" onclick="editUser(${u.id})">Edit</button>
+                            <button class="btn ${u.is_admin ? 'btn-danger' : 'btn-success'}" onclick="toggleAdmin(${u.id}, '${u.email}', ${u.is_admin})">${u.is_admin ? 'Remove Admin' : 'Make Admin'}</button>
+                            <button class="btn btn-danger" onclick="deleteUser(${u.id}, '${u.email}')">Delete</button>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (err) {
+                console.error('Error loading users:', err);
+            }
+        }
+
+        // Load matches
+        async function loadMatches() {
+            try {
+                const res = await fetch(`${API_BASE}/api/admin/matches`, {
+                    credentials: 'include'
+                });
+                const data = await res.json();
+
+                const tbody = document.getElementById('matches-table-body');
+                if (data.matches.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" class="empty-state">No matches found</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = data.matches.map(m => `
+                    <tr>
+                        <td>${m.id}</td>
+                        <td>${m.user1_first || ''} ${m.user1_last || ''} (${m.user1_email})</td>
+                        <td>${m.user2_first || ''} ${m.user2_last || ''} (${m.user2_email})</td>
+                        <td>${new Date(m.matched_at).toLocaleDateString()}</td>
+                        <td>${m.message_count}</td>
+                        <td>
+                            <button class="btn btn-danger" onclick="deleteMatch(${m.id})">Break Up</button>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (err) {
+                console.error('Error loading matches:', err);
+            }
+        }
+
+        // Load potential matches
+        async function loadPotentialMatches() {
+            try {
+                const res = await fetch(`${API_BASE}/api/admin/potential-matches`, {
+                    credentials: 'include'
+                });
+                const data = await res.json();
+
+                const tbody = document.getElementById('potential-table-body');
+                if (data.users.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="7" class="empty-state">No users available</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = data.users.map(u => `
+                    <tr>
+                        <td>${u.id}</td>
+                        <td>${u.first_name || ''} ${u.last_name || ''}</td>
+                        <td>${u.email}</td>
+                        <td>${u.year || '-'}</td>
+                        <td>${u.major || '-'}</td>
+                        <td>${u.has_survey ? '<span class="badge badge-success">Yes</span>' : '<span class="badge badge-warning">No</span>'}</td>
+                        <td>${u.already_matched ? '<span class="badge badge-info">Matched</span>' : '<span class="badge badge-success">Available</span>'}</td>
+                    </tr>
+                `).join('');
+
+                // Populate match selectors
+                const select1 = document.getElementById('match-user1');
+                const select2 = document.getElementById('match-user2');
+                const availableUsers = data.users.filter(u => !u.already_matched);
+
+                const options = availableUsers.map(u =>
+                    `<option value="${u.id}">${u.first_name || ''} ${u.last_name || ''} (${u.email})</option>`
+                ).join('');
+
+                select1.innerHTML = '<option value="">Select User 1</option>' + options;
+                select2.innerHTML = '<option value="">Select User 2</option>' + options;
+            } catch (err) {
+                console.error('Error loading potential matches:', err);
+            }
+        }
+
+        // Switch tabs
+        function switchTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+
+            event.target.classList.add('active');
+            document.getElementById(`tab-${tab}`).classList.add('active');
+
+            if (tab === 'users') loadUsers();
+            if (tab === 'matches') loadMatches();
+            if (tab === 'potential') loadPotentialMatches();
+        }
+
+        // Edit user
+        async function editUser(userId) {
+            try {
+                const res = await fetch(`${API_BASE}/api/admin/user/${userId}`, {
+                    credentials: 'include'
+                });
+                const data = await res.json();
+
+                document.getElementById('edit-user-id').value = userId;
+                document.getElementById('edit-bio').value = data.profile?.bio || '';
+                document.getElementById('edit-year').value = data.profile?.year || '';
+                document.getElementById('edit-major').value = data.profile?.major || '';
+                document.getElementById('edit-hobbies').value = data.profile?.hobbies || '';
+
+                document.getElementById('edit-user-modal').classList.add('active');
+            } catch (err) {
+                showAlert('Failed to load user data', 'error');
+            }
+        }
+
+        // Close modal
+        function closeModal() {
+            document.getElementById('edit-user-modal').classList.remove('active');
+        }
+
+        // Save user changes
+        document.getElementById('edit-user-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const userId = document.getElementById('edit-user-id').value;
+            const data = {
+                bio: document.getElementById('edit-bio').value,
+                year: document.getElementById('edit-year').value,
+                major: document.getElementById('edit-major').value,
+                hobbies: document.getElementById('edit-hobbies').value
+            };
+
+            try {
+                const res = await fetch(`${API_BASE}/api/admin/user/${userId}/profile`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify(data)
+                });
+
+                if (res.ok) {
+                    showAlert('User profile updated successfully', 'success');
+                    closeModal();
+                    loadUsers();
+                } else {
+                    showAlert('Failed to update user profile', 'error');
+                }
+            } catch (err) {
+                showAlert('Error updating user profile', 'error');
+            }
+        });
+
+        // Toggle admin status
+        async function toggleAdmin(userId, email, currentStatus) {
+            const action = currentStatus ? 'remove admin access from' : 'grant admin access to';
+            if (!confirm(`Are you sure you want to ${action} ${email}?`)) {
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API_BASE}/api/admin/user/${userId}/toggle-admin`, {
+                    method: 'POST',
+                    credentials: 'include'
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    showAlert(`Admin status updated successfully`, 'success');
+                    loadUsers();
+                } else {
+                    showAlert(data.error || 'Failed to update admin status', 'error');
+                }
+            } catch (err) {
+                showAlert('Error updating admin status', 'error');
+            }
+        }
+
+        // Delete user
+        async function deleteUser(userId, email) {
+            if (!confirm(`Are you sure you want to delete user ${email}? This cannot be undone.`)) {
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API_BASE}/api/admin/user/${userId}/delete`, {
+                    method: 'DELETE',
+                    credentials: 'include'
+                });
+
+                if (res.ok) {
+                    showAlert('User deleted successfully', 'success');
+                    loadUsers();
+                    loadStats();
+                } else {
+                    const data = await res.json();
+                    showAlert(data.error || 'Failed to delete user', 'error');
+                }
+            } catch (err) {
+                showAlert('Error deleting user', 'error');
+            }
+        }
+
+        // Delete match
+        async function deleteMatch(matchId) {
+            if (!confirm('Are you sure you want to break up this match? This cannot be undone.')) {
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API_BASE}/api/admin/match/${matchId}/delete`, {
+                    method: 'DELETE',
+                    credentials: 'include'
+                });
+
+                if (res.ok) {
+                    showAlert('Match deleted successfully', 'success');
+                    loadMatches();
+                    loadStats();
+                } else {
+                    showAlert('Failed to delete match', 'error');
+                }
+            } catch (err) {
+                showAlert('Error deleting match', 'error');
+            }
+        }
+
+        // Create match
+        async function createMatch() {
+            const user1_id = document.getElementById('match-user1').value;
+            const user2_id = document.getElementById('match-user2').value;
+
+            if (!user1_id || !user2_id) {
+                showAlert('Please select both users', 'error');
+                return;
+            }
+
+            if (user1_id === user2_id) {
+                showAlert('Cannot match a user with themselves', 'error');
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API_BASE}/api/admin/match/create`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({ user1_id, user2_id })
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    showAlert('Match created successfully', 'success');
+                    document.getElementById('match-user1').value = '';
+                    document.getElementById('match-user2').value = '';
+                    loadPotentialMatches();
+                    loadMatches();
+                    loadStats();
+                } else {
+                    showAlert(data.error || 'Failed to create match', 'error');
+                }
+            } catch (err) {
+                showAlert('Error creating match', 'error');
+            }
+        }
+
+        // Show alert
+        function showAlert(message, type) {
+            const container = document.getElementById('alert-container');
+            const alertClass = type === 'success' ? 'alert-success' : 'alert-error';
+            container.innerHTML = `<div class="alert ${alertClass}">${message}</div>`;
+            setTimeout(() => {
+                container.innerHTML = '';
+            }, 5000);
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('edit-user-modal').addEventListener('click', (e) => {
+            if (e.target.id === 'edit-user-modal') {
+                closeModal();
+            }
+        });
+
+        // Initialize
+        checkAdmin();
+        loadStats();
+        loadUsers();
+    </script>
+</body>
+</html>

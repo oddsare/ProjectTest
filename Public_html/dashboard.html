@@ -225,6 +225,7 @@
                 <a href="dashboard.html" class="nav-link-embark active">Home</a>
                 <a href="matches.html" class="nav-link-embark">Matches</a>
                 <a href="profile.html" class="nav-link-embark">Profile</a>
+                <a href="admin.html" class="nav-link-embark" id="adminLink" style="display:none; color:#CE1141; font-weight:600;">Admin</a>
             </div>
             <div class="nav-actions-embark">
                 <button class="btn-text-embark" id="logoutBtn">Log out</button>
@@ -330,6 +331,22 @@
     <script src="auth.js"></script>
     <script>
         checkAuth();
+
+        // Check if user is admin and show admin link
+        async function checkAdminStatus() {
+            try {
+                const res = await fetch(`${API_BASE}/api/admin/check`, {
+                    credentials: 'include'
+                });
+                const data = await res.json();
+                if (data.is_admin) {
+                    document.getElementById('adminLink').style.display = 'block';
+                }
+            } catch (err) {
+                // Not admin or error - keep link hidden
+            }
+        }
+        checkAdminStatus();
 
         let allMatches = [];
 

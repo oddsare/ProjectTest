@@ -233,3 +233,33 @@ def register_routes(app, get_db):
         db.close()
 
         return jsonify({'message': 'Password changed successfully'}), 200
+
+    @app.route('/api/make-admin', methods=['POST'])
+    def make_admin():
+        """Grant admin access to a user by email (setup endpoint)"""
+        data = request.json
+        email = data.get('email')
+
+        if not email:
+            return jsonify({'error': 'Email required'}), 400
+
+        db = get_db()
+        user = db.execute('SELECT id, email, is_admin FROM users WHERE email = ?', (email,)).fetchone()
+
+        if not user:
+            db.close()
+            return jsonify({'error': 'User not found. Please register an account first.'}), 404
+
+        if user['is_admin']:
+            db.close()
+            return jsonify({'error': 'This user is already an admin'}), 400
+
+        # Grant admin access
+        db.execute('UPDATE users SET is_admin = 1 WHERE id = ?', (user['id'],))
+        db.commit()
+        db.close()
+
+        return jsonify({
+            'success': True,
+            'message': f'Admin access granted to {email}'
+        }), 200
