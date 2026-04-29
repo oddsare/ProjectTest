@@ -1,23 +1,23 @@
-// Wait for the page to fully load before running code
+// Wait for page load
 document.addEventListener('DOMContentLoaded', function() {
 
-    // Get references to HTML elements
+    // Get form elements
     const loginForm = document.getElementById('loginForm');
     const usernameInput = document.getElementById('username');
     const passwordInput = document.getElementById('password');
     const usernameError = document.getElementById('usernameError');
     const passwordError = document.getElementById('passwordError');
 
-    // Listen for form submission
+    // Handle form submit
     loginForm.addEventListener('submit', function(event) {
-        // Prevent the form from submitting normally (page refresh)
+        // Prevent page refresh
         event.preventDefault();
 
         // Reset error messages
         usernameError.textContent = '';
         passwordError.textContent = '';
 
-        // Get the input values
+        // Get input values
         const username = usernameInput.value.trim();
         const password = passwordInput.value.trim();
 
@@ -42,14 +42,14 @@ document.addEventListener('DOMContentLoaded', function() {
             isValid = false;
         }
 
-        // If all validations pass
+        // If valid
         if (isValid) {
-            // Send credentials to server
+            // Send to server
             loginUser(username, password);
         }
     });
 
-    // Real-time validation: Clear error when user starts typing
+    // Clear error on typing
     usernameInput.addEventListener('input', function() {
         if (usernameError.textContent !== '') {
             usernameError.textContent = '';
@@ -62,13 +62,13 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Function to send login credentials to server
+    // Send login request
     async function loginUser(username, password) {
         try {
-            // Show loading state (you could disable button here)
+            // Show loading state
             console.log('Sending login request...');
 
-            // Send POST request to server
+            // Send POST request
             const response = await fetch('http://localhost:3000/api/login', {
                 method: 'POST',
                 headers: {
@@ -80,19 +80,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 })
             });
 
-            // Parse the JSON response
+            // Parse response
             const data = await response.json();
 
-            // Check if login was successful
+            // Check if successful
             if (response.ok) {
-                // Server returned success (status 200)
                 console.log('Login successful!');
 
-                // Store the JWT token in localStorage
-                // This token proves the user is authenticated
+                // Store auth token
                 localStorage.setItem('authToken', data.token);
 
-                // Optionally store username (not sensitive data)
+                // Store username
                 localStorage.setItem('username', username);
 
                 // Show success message
@@ -105,26 +103,24 @@ document.addEventListener('DOMContentLoaded', function() {
                 // window.location.href = 'dashboard.html';
 
             } else {
-                // Server returned error (401, 400, etc.)
                 console.log('Login failed:', data.message);
 
-                // Show error message from server
+                // Show error
                 usernameError.textContent = data.message || 'Invalid credentials';
             }
 
         } catch (error) {
-            // Network error or server is down
+            // Network error
             console.error('Error:', error);
             usernameError.textContent = 'Unable to connect to server. Please try again later.';
         }
     }
 
-    // Helper function: Check if user is already logged in
+    // Check if logged in
     function checkIfLoggedIn() {
         const token = localStorage.getItem('authToken');
         if (token) {
-            // User has a token, verify it's still valid
-            // In production, you'd verify with server
+            // User has token
             console.log('User is already logged in');
             // Optionally redirect to dashboard
             // window.location.href = 'dashboard.html';
@@ -135,9 +131,9 @@ document.addEventListener('DOMContentLoaded', function() {
     checkIfLoggedIn();
 });
 
-// Logout function (can be called from other pages)
+// Logout function
 function logout() {
-    // Remove all stored authentication data
+    // Remove auth data
     localStorage.removeItem('authToken');
     localStorage.removeItem('username');
     console.log('User logged out');
@@ -145,9 +141,9 @@ function logout() {
     window.location.href = 'login.html';
 }
 
-// Function to make authenticated requests to server
+// Make authenticated request
 async function authenticatedRequest(url, options = {}) {
-    // Get the stored token
+    // Get token
     const token = localStorage.getItem('authToken');
 
     if (!token) {
@@ -156,7 +152,7 @@ async function authenticatedRequest(url, options = {}) {
         return;
     }
 
-    // Add token to request headers
+    // Add token to headers
     const headers = {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer ' + token,
@@ -169,7 +165,7 @@ async function authenticatedRequest(url, options = {}) {
             headers: headers
         });
 
-        // If token is invalid/expired, server returns 401
+        // If token invalid
         if (response.status === 401) {
             console.log('Token expired or invalid');
             logout();

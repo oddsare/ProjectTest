@@ -1,15 +1,13 @@
-// ================================================================================
-// SHARED AUTHENTICATION UTILITIES
-// ================================================================================
+// Shared authentication utilities
 
-// Auto-detect API base: local dev, Railway, or Turing server
+// Auto-detect API base
 const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
     ? '' // Local Flask dev server
     : window.location.hostname.includes('railway.app')
     ? '' // Railway deployment (root path)
     : '/~group4sp26'; // Turing server
 
-// Show/hide loading state on buttons
+// Show/hide loading state
 function setLoading(isLoading) {
     const submitBtn = document.querySelector('button[type="submit"]');
     if (!submitBtn) return;
@@ -28,7 +26,7 @@ function setLoading(isLoading) {
     }
 }
 
-// Show alert message
+// Show alert
 function showAlert(message, type = 'info') {
     const alert = document.getElementById('alert');
     if (!alert) return;
@@ -37,7 +35,7 @@ function showAlert(message, type = 'info') {
     alert.className = `alert ${type}`;
     alert.classList.remove('hidden');
 
-    // Auto-hide after 5 seconds for success messages
+    // Auto-hide after 5 seconds
     if (type === 'success') {
         setTimeout(() => {
             hideAlert();
@@ -45,7 +43,7 @@ function showAlert(message, type = 'info') {
     }
 }
 
-// Hide alert message
+// Hide alert
 function hideAlert() {
     const alert = document.getElementById('alert');
     if (alert) {
@@ -53,7 +51,7 @@ function hideAlert() {
     }
 }
 
-// Check if user is authenticated
+// Check if authenticated
 async function checkAuth() {
     try {
         const response = await fetch(`${API_BASE}/api/profile`, {
@@ -61,7 +59,7 @@ async function checkAuth() {
         });
 
         if (!response.ok) {
-            // Not logged in, redirect to login
+            // Not logged in
             if (window.location.pathname.includes('dashboard') ||
                 window.location.pathname.includes('profile')) {
                 window.location.href = 'login_improved.html';
@@ -93,13 +91,13 @@ async function logout() {
     }
 }
 
-// Format date helper
+// Format date
 function formatDate(date) {
     const options = { year: 'numeric', month: 'long', day: 'numeric' };
     return new Date(date).toLocaleDateString('en-US', options);
 }
 
-// Format relative time helper
+// Format relative time
 function formatRelativeTime(date) {
     const now = new Date();
     const diff = now - new Date(date);
@@ -114,14 +112,13 @@ function formatRelativeTime(date) {
     return 'Just now';
 }
 
-// Initialize tooltips (optional enhancement)
+// Initialize tooltips
 function initTooltips() {
-    // Could add tooltip library here if needed
 }
 
 // Initialize page
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize any global features
+    // Initialize global features
     initTooltips();
 
     // Add global keyboard shortcuts
