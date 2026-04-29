@@ -19,6 +19,9 @@ venv/
 env/
 ENV/
 
+# Claude Code
+.claude/
+
 # Uploads - User-generated content
 uploads/
 *.jpg
