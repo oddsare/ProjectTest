@@ -485,17 +485,15 @@
                 const data = await res.json();
 
                 if (!res.ok) {
-                    alert(data.error || 'Error accepting request');
+                    console.error('Error accepting request:', data.error);
                     return;
                 }
 
-                alert('You are now roommates!');
                 loadIncomingRequests();
                 loadRoommate();
 
             } catch (err) {
                 console.error('Error accepting request:', err);
-                alert('Error accepting request');
             }
         }
 
@@ -511,7 +509,7 @@
                 });
 
                 if (!res.ok) {
-                    alert('Error denying request');
+                    console.error('Error denying request');
                     return;
                 }
 
@@ -519,7 +517,6 @@
 
             } catch (err) {
                 console.error('Error denying request:', err);
-                alert('Error denying request');
             }
         }
 
@@ -653,16 +650,14 @@
                 const data = await res.json();
 
                 if (!res.ok) {
-                    alert(data.error || 'Error sending request');
+                    console.error('Error sending request:', data.error);
                     return;
                 }
 
-                alert('Request sent! They\'ll see it on their dashboard.');
                 closeModal();
 
             } catch (err) {
                 console.error('Error sending request:', err);
-                alert('Error sending request');
             }
         }
 

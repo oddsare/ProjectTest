@@ -29,9 +29,9 @@ form.addEventListener("submit", async function (event) {
         if (response.ok) {
             window.location.href = 'dashboard.html';
         } else {
-            alert(data.message || 'Failed to submit survey. Please try again.');
+            console.error('Failed to submit survey:', data.message);
         }
     } catch (error) {
-        alert('Unable to connect to server. Please try again.');
+        console.error('Unable to connect to server:', error);
     }
 });

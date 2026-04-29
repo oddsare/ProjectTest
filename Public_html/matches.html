@@ -391,16 +391,14 @@
                 const data = await res.json();
 
                 if (!res.ok) {
-                    alert(data.error || 'Error sending request');
+                    console.error('Error sending request:', data.error);
                     return;
                 }
 
-                alert('Request sent! They\'ll see it on their dashboard.');
                 removeMatchCard(userId);
 
             } catch (err) {
                 console.error('Error sending request:', err);
-                alert('Error sending request');
             }
         }
 
@@ -429,14 +427,12 @@
 
                 if (res.ok) {
                     removeMatchCard(userId);
-                    alert(`${name} has been blocked successfully.`);
                 } else {
                     const data = await res.json();
-                    alert(data.error || 'Failed to block user');
+                    console.error('Failed to block user:', data.error);
                 }
             } catch (err) {
                 console.error('Error blocking user:', err);
-                alert('Failed to block user. Please try again.');
             }
         }
 
