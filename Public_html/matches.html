@@ -482,7 +482,9 @@
                     <p><strong>Hobbies:</strong><br><div style="display:flex; flex-wrap:wrap; gap:6px; margin-top:8px;">${hobbies}</div></p>
                     <p><strong>Shared Traits:</strong> ${match.sharedTraits.join(', ') || 'None listed'}</p>
                     ${matchCheck.mutualMatch ? `
-                        <a href="chat.html?match=${matchCheck.matchId}" style="display:block; background:#CE1141; color:white; text-align:center; padding:12px; border-radius:8px; text-decoration:none; font-weight:600; margin-top:16px;">Start Chat</a>
+                        <div style="margin-top:16px; padding:16px; background:#d1fae5; border-radius:8px; text-align:center; color:#065f46; font-weight:600;">
+                            ✓ You are roommates!
+                        </div>
                     ` : ''}
                 `;
 

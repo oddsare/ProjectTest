@@ -489,8 +489,9 @@
                     return;
                 }
 
-                alert('Request accepted! Go to Chat to start talking.');
-                window.location.href = 'chat.html';
+                alert('You are now roommates!');
+                loadIncomingRequests();
+                loadRoommate();
 
             } catch (err) {
                 console.error('Error accepting request:', err);
@@ -610,13 +611,6 @@
                 });
                 const matchCheck = await matchCheckRes.json();
 
-                // Check if pending request exists
-                const reqCheckRes = await fetch(`${API_BASE}/api/chat/conversations`, {
-                    credentials: 'include'
-                });
-                const convData = await reqCheckRes.json();
-                const pendingConv = convData.conversations.find(c => c.other_user_id == userId && !c.confirmed);
-
                 // Build profile display
                 const hobbies = user.hobbies ? user.hobbies.split(',').map(h => `<span class="trait-pill">${h.trim()}</span>`).join('') : '<em style="color:#9ca3af;">None listed</em>';
 
@@ -628,9 +622,9 @@
                     <p><strong>Hobbies:</strong><br><div style="display:flex; flex-wrap:wrap; gap:6px; margin-top:8px;">${hobbies}</div></p>
                     <p><strong>Shared Traits:</strong> ${match.sharedTraits.join(', ') || 'None listed'}</p>
                     ${matchCheck.mutualMatch ? `
-                        <a href="chat.html?match=${matchCheck.matchId}" style="display:block; background:#CE1141; color:white; text-align:center; padding:12px; border-radius:8px; text-decoration:none; font-weight:600; margin-top:16px;">Open Chat (Confirmed)</a>
-                    ` : pendingConv ? `
-                        <a href="chat.html?match=${pendingConv.match_id}" style="display:block; background:#10b981; color:white; text-align:center; padding:12px; border-radius:8px; text-decoration:none; font-weight:600; margin-top:16px;">Open Chat (Pending)</a>
+                        <div style="margin-top:16px; padding:16px; background:#d1fae5; border-radius:8px; text-align:center; color:#065f46; font-weight:600;">
+                            ✓ You are roommates!
+                        </div>
                     ` : `
                         <div style="margin-top:16px; display:flex; gap:12px;">
                             <button onclick="sendRequest(${userId}, event)" style="flex:1; background:#CE1141; color:white; border:none; padding:10px; border-radius:8px; font-weight:600; cursor:pointer;">Send Request</button>
