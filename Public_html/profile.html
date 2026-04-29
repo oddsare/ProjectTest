@@ -688,6 +688,11 @@
 
         document.getElementById('logoutBtn').addEventListener('click', logout);
         loadProfile();
+
+        // Auto-refresh every 5 seconds
+        setInterval(() => {
+            loadProfile();
+        }, 5000);
     </script>
 </body>
 </html>

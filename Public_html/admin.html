@@ -595,7 +595,10 @@
         }
 
         // Switch tabs
+        let currentTab = 'users';
+
         function switchTab(tab) {
+            currentTab = tab;
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
 
@@ -800,6 +803,14 @@
         checkAdmin();
         loadStats();
         loadUsers();
+
+        // Auto-refresh every 5 seconds
+        setInterval(() => {
+            loadStats();
+            if (currentTab === 'users') loadUsers();
+            if (currentTab === 'matches') loadMatches();
+            if (currentTab === 'potential') loadPotentialMatches();
+        }, 5000);
     </script>
 </body>
 </html>
