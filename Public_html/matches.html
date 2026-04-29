@@ -498,6 +498,11 @@
 
         document.getElementById('logoutBtn').addEventListener('click', logout);
         loadMatches();
+
+        // Auto-refresh matches every 10 seconds
+        setInterval(() => {
+            loadMatches();
+        }, 10000);
     </script>
 </body>
 </html>

@@ -678,6 +678,12 @@
 
         document.getElementById('logoutBtn').addEventListener('click', logout);
         loadDashboard();
+
+        // Auto-refresh incoming requests and roommate status every 10 seconds
+        setInterval(() => {
+            loadIncomingRequests();
+            loadRoommate();
+        }, 10000);
     </script>
 </body>
 </html>
