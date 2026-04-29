@@ -311,7 +311,7 @@ def register_routes(app, get_db, login_required):
     @app.route('/api/match/request/accept', methods=['POST'])
     @login_required
     def accept_incoming_request():
-        """Accept incoming request - creates mutual request for chat"""
+        """Accept incoming request - creates confirmed match immediately"""
         data = request.json
         user_id = session['user_id']
         from_user_id = data.get('fromUserId')
@@ -331,18 +331,38 @@ def register_routes(app, get_db, login_required):
             db.close()
             return jsonify({'error': 'Request not found'}), 404
 
-        # Create reverse request (mutual for chat)
+        # Check if either user already has a confirmed match
+        existing = db.execute('''
+            SELECT id FROM matches
+            WHERE user1_id = ? OR user2_id = ? OR user1_id = ? OR user2_id = ?
+        ''', (user_id, user_id, from_user_id, from_user_id)).fetchone()
+
+        if existing:
+            db.close()
+            return jsonify({'error': 'One of you already has a confirmed roommate'}), 400
+
+        # Create confirmed match immediately
+        user_ids = sorted([user_id, from_user_id])
         try:
             db.execute('''
-                INSERT INTO match_requests (from_user_id, to_user_id)
+                INSERT INTO matches (user1_id, user2_id)
                 VALUES (?, ?)
-            ''', (user_id, from_user_id))
+            ''', (user_ids[0], user_ids[1]))
             db.commit()
         except:
-            pass  # Already exists
+            db.close()
+            return jsonify({'error': 'Failed to create match'}), 500
+
+        # Delete the request (no longer needed)
+        db.execute('''
+            DELETE FROM match_requests
+            WHERE (from_user_id = ? AND to_user_id = ?)
+               OR (from_user_id = ? AND to_user_id = ?)
+        ''', (from_user_id, user_id, user_id, from_user_id))
+        db.commit()
 
         db.close()
-        return jsonify({'success': True, 'message': 'Request accepted! You can now chat.'})
+        return jsonify({'success': True, 'message': 'You are now roommates!'})
 
     @app.route('/api/match/request/deny', methods=['POST'])
     @login_required
@@ -403,3 +423,41 @@ def register_routes(app, get_db, login_required):
             'mutualMatch': match is not None,
             'matchId': match['id'] if match else None
         })
+
+    @app.route('/api/roommate', methods=['GET'])
+    @login_required
+    def get_roommate():
+        """Get current user's confirmed roommate"""
+        user_id = session['user_id']
+        db = get_db()
+
+        # Get confirmed match
+        match = db.execute('''
+            SELECT m.id as match_id,
+                   CASE WHEN m.user1_id = ? THEN m.user2_id ELSE m.user1_id END as roommate_id
+            FROM matches m
+            WHERE m.user1_id = ? OR m.user2_id = ?
+        ''', (user_id, user_id, user_id)).fetchone()
+
+        if not match:
+            db.close()
+            return jsonify({'roommate': None})
+
+        # Get roommate details
+        roommate = db.execute('''
+            SELECT u.id, u.first_name, u.last_name, u.email,
+                   p.bio, p.year, p.hobbies, p.profile_picture
+            FROM users u
+            JOIN profiles p ON u.id = p.user_id
+            WHERE u.id = ?
+        ''', (match['roommate_id'],)).fetchone()
+
+        db.close()
+
+        if roommate:
+            roommate_dict = dict(roommate)
+            if roommate_dict['profile_picture']:
+                roommate_dict['profile_picture'] = f"/uploads/profile_pictures/{roommate_dict['profile_picture']}"
+            return jsonify({'roommate': roommate_dict})
+
+        return jsonify({'roommate': None})

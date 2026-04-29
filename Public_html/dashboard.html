@@ -291,10 +291,10 @@
             <a href="survey-prompt.html" class="btn-cta-white">Start Survey →</a>
         </div>
 
-        <!-- Accepted Requests Card -->
-        <div class="dash-card" id="acceptedCard" style="display:none; background:linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);">
-            <p class="dash-card-title" style="color:#065f46;">Request Accepted!</p>
-            <div id="acceptedList"></div>
+        <!-- Your Roommate Card -->
+        <div class="dash-card" id="roommateCard" style="display:none; background:linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);">
+            <p class="dash-card-title" style="color:#065f46;">Your Roommate</p>
+            <div id="roommateInfo"></div>
         </div>
 
         <!-- Incoming Requests Card -->
@@ -348,9 +348,9 @@
                 const name = user.first_name || user.email.split('@')[0];
                 document.getElementById('displayName').textContent = name;
 
-                // Load incoming requests and accepted notifications
+                // Load incoming requests and roommate
                 loadIncomingRequests();
-                loadAcceptedRequests();
+                loadRoommate();
 
                 const matchesRes = await fetch(`${API_BASE}/api/matches`, {
                     credentials: 'include'
@@ -397,54 +397,41 @@
             }
         }
 
-        async function loadAcceptedRequests() {
+        async function loadRoommate() {
             try {
-                const res = await fetch(`${API_BASE}/api/match/requests/accepted`, {
+                const res = await fetch(`${API_BASE}/api/roommate`, {
                     credentials: 'include'
                 });
 
                 if (!res.ok) return;
 
-                const { accepted } = await res.json();
+                const { roommate } = await res.json();
 
-                if (accepted.length === 0) return;
+                if (!roommate) return;
 
-                document.getElementById('acceptedCard').style.display = 'block';
-                renderAccepted(accepted);
+                document.getElementById('roommateCard').style.display = 'block';
+
+                const name = roommate.first_name ? `${roommate.first_name} ${roommate.last_name || ''}`.trim() : roommate.email.split('@')[0];
+                const initials = (roommate.first_name ? roommate.first_name[0] : roommate.email[0]).toUpperCase();
+
+                document.getElementById('roommateInfo').innerHTML = `
+                    <div style="padding:16px; background:white; border-radius:8px;">
+                        <div style="display:flex; align-items:center; gap:16px; margin-bottom:12px;">
+                            <div style="width:60px; height:60px; border-radius:50%; background:linear-gradient(135deg, #fce7f3, #fbcfe8); color:#CE1141; display:flex; align-items:center; justify-content:center; font-size:1.5rem; font-weight:700;">
+                                ${initials}
+                            </div>
+                            <div>
+                                <p style="margin:0; font-size:1.1rem; font-weight:600; color:#065f46;">${name}</p>
+                                <p style="margin:4px 0 0 0; font-size:0.85rem; color:#047857;">${roommate.email}</p>
+                            </div>
+                        </div>
+                        ${roommate.year ? `<p style="margin:8px 0 0 0; font-size:0.9rem; color:#6b7280;"><strong>Year:</strong> ${roommate.year}</p>` : ''}
+                        ${roommate.hobbies ? `<p style="margin:4px 0 0 0; font-size:0.9rem; color:#6b7280;"><strong>Hobbies:</strong> ${roommate.hobbies}</p>` : ''}
+                    </div>
+                `;
 
             } catch (err) {
-                console.error('Error loading accepted requests:', err);
-            }
-        }
-
-        function renderAccepted(accepted) {
-            // Filter out seen notifications
-            const seenIds = JSON.parse(localStorage.getItem('seenAccepted') || '[]');
-            const unseenAccepted = accepted.filter(a => !seenIds.includes(a.to_user_id));
-
-            if (unseenAccepted.length === 0) {
-                document.getElementById('acceptedCard').style.display = 'none';
-                return;
-            }
-
-            const list = document.getElementById('acceptedList');
-            list.innerHTML = unseenAccepted.map(a => {
-                const name = a.first_name ? `${a.first_name} ${a.last_name || ''}`.trim() : a.email.split('@')[0];
-
-                return `
-                <div style="padding:16px; background:white; border-radius:8px; margin-bottom:12px;">
-                    <p style="margin:0 0 8px 0; color:#065f46; font-weight:600;">${name} accepted your request!</p>
-                    <p style="margin:0 0 12px 0; font-size:0.85rem; color:#047857;">You can now chat before confirming the match.</p>
-                    <a href="chat.html" onclick="markAcceptedSeen(${a.to_user_id})" style="display:inline-block; background:#10b981; color:white; padding:8px 16px; border-radius:6px; text-decoration:none; font-size:0.9rem; font-weight:600;">Open Chat</a>
-                </div>`;
-            }).join('');
-        }
-
-        function markAcceptedSeen(userId) {
-            const seenIds = JSON.parse(localStorage.getItem('seenAccepted') || '[]');
-            if (!seenIds.includes(userId)) {
-                seenIds.push(userId);
-                localStorage.setItem('seenAccepted', JSON.stringify(seenIds));
+                console.error('Error loading roommate:', err);
             }
         }
 
