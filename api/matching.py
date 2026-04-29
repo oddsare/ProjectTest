@@ -347,7 +347,7 @@ def register_routes(app, get_db, login_required):
     @app.route('/api/match/request/deny', methods=['POST'])
     @login_required
     def deny_incoming_request():
-        """Deny incoming request - deletes it"""
+        """Deny incoming request - deletes it and blocks mutual visibility"""
         data = request.json
         user_id = session['user_id']
         from_user_id = data.get('fromUserId')
@@ -357,10 +357,21 @@ def register_routes(app, get_db, login_required):
 
         db = get_db()
 
+        # Delete the request
         db.execute('''
             DELETE FROM match_requests
             WHERE from_user_id = ? AND to_user_id = ?
         ''', (from_user_id, user_id))
+
+        # Block mutual visibility - add to blocked_users so they don't see each other
+        try:
+            db.execute('''
+                INSERT INTO blocked_users (blocker_id, blocked_id, reason)
+                VALUES (?, ?, ?)
+            ''', (user_id, from_user_id, 'Request denied'))
+        except:
+            pass  # Already blocked
+
         db.commit()
         db.close()
 
