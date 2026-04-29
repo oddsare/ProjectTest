@@ -428,11 +428,11 @@
                     credentials: 'include'
                 });
 
-                if (!res.ok) return;
+                if (!res.ok) return false;
 
                 const { roommate } = await res.json();
 
-                if (!roommate) return;
+                if (!roommate) return false;
 
                 document.getElementById('roommateCard').style.display = 'block';
 
@@ -455,8 +455,14 @@
                     </div>
                 `;
 
+                // Update progress bar to 100% when roommate confirmed
+                setProgress(100, true, true, false);
+
+                return true;
+
             } catch (err) {
                 console.error('Error loading roommate:', err);
+                return false;
             }
         }
 
