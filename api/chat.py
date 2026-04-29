@@ -13,13 +13,13 @@ def register_routes(app, get_db, login_required):
     @app.route('/api/chat/conversations', methods=['GET'])
     @login_required
     def get_conversations():
-        """Get all chat conversations (pending requests + confirmed matches)"""
+        """Get all chat conversations"""
         user_id = session['user_id']
         db = get_db()
 
         conversations = []
 
-        # 1. Get confirmed matches (exclude blocked users)
+        # Get confirmed matches
         confirmed = db.execute('''
             SELECT
                 m.id as match_id,
@@ -55,7 +55,7 @@ def register_routes(app, get_db, login_required):
 
         conversations.extend([dict(c) for c in confirmed])
 
-        # 2. Get mutual pending requests (both sent requests, not yet confirmed, exclude blocked users)
+        # Get mutual pending requests
         pending = db.execute('''
             SELECT DISTINCT
                 CASE WHEN r1.to_user_id < ? THEN r1.to_user_id ELSE ? END * 1000000 +
@@ -162,7 +162,7 @@ def register_routes(app, get_db, login_required):
         message_id = cursor.lastrowid
         db.commit()
 
-        # Get the created message
+        # Get created message
         new_message = db.execute('''
             SELECT m.*, u.first_name, u.last_name
             FROM messages m
@@ -170,7 +170,7 @@ def register_routes(app, get_db, login_required):
             WHERE m.id = ?
         ''', (message_id,)).fetchone()
 
-        # Get recipient info for email notification
+        # Get recipient info
         recipient_id = match['user2_id'] if match['user1_id'] == user_id else match['user1_id']
         recipient = db.execute('''
             SELECT email, first_name, last_name FROM users WHERE id = ?
@@ -178,7 +178,7 @@ def register_routes(app, get_db, login_required):
 
         db.close()
 
-        # Send email notification to recipient
+        # Send email notification
         if recipient:
             sender_name = f"{new_message['first_name']} {new_message['last_name'] or ''}".strip() if new_message['first_name'] else "Someone"
             message_preview = message[:100] + '...' if len(message) > 100 else message
@@ -210,11 +210,11 @@ def register_routes(app, get_db, login_required):
     @app.route('/api/chat/<int:match_id>/typing-status', methods=['GET'])
     @login_required
     def get_typing_status(match_id):
-        """Check if other user is typing (within last 3 seconds)"""
+        """Check if other user is typing"""
         user_id = session['user_id']
         db = get_db()
 
-        # Get other user's typing status
+        # Get typing status
         typing = db.execute('''
             SELECT user_id, last_typing_at
             FROM typing_status

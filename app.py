@@ -9,11 +9,9 @@ import secrets
 
 app = Flask(__name__, static_folder='Public_html', static_url_path='')
 
-# Require SECRET_KEY environment variable for security
+# Get SECRET_KEY from environment or generate temp one
 if not os.environ.get('SECRET_KEY'):
-    # Generate a random secret key for development if not set
-    print("WARNING: SECRET_KEY not set in environment. Using generated key for this session only.")
-    print("Set SECRET_KEY environment variable for production!")
+    print("WARNING: No SECRET_KEY set. Using temp key (dev only)")
     app.secret_key = secrets.token_hex(32)
 else:
     app.secret_key = os.environ.get('SECRET_KEY')
@@ -135,10 +133,11 @@ def init_db():
     db.commit()
     db.close()
 
-# Helper functions
+# Check if uploaded file type is allowed
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
+# Decorator - require user to be logged in
 def login_required(f):
     from functools import wraps
     @wraps(f)
@@ -148,7 +147,7 @@ def login_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
-# Routes - Serve HTML files
+# Serve HTML pages
 @app.route('/')
 def index():
     return send_from_directory('Public_html', 'login_improved.html')
@@ -161,7 +160,7 @@ def serve_upload(filename):
 def serve_static(path):
     return send_from_directory('Public_html', path)
 
-# Import and register API routes
+# Register all API routes
 from api import auth, profile, matching, chat, blocking, admin
 
 auth.register_routes(app, get_db)
@@ -171,15 +170,12 @@ chat.register_routes(app, get_db, login_required)
 blocking.register_routes(app, get_db, login_required)
 admin.register_routes(app, get_db, login_required)
 
-# Initialize database on startup
+# Create database tables on startup
 with app.app_context():
     init_db()
 
 if __name__ == '__main__':
-    # Only enable debug mode in development
     debug_mode = os.environ.get('FLASK_DEBUG', 'False').lower() == 'true'
-
     if debug_mode:
-        print("WARNING: Running in DEBUG mode. Disable for production!")
-
+        print("WARNING: DEBUG mode enabled (dev only)")
     app.run(debug=debug_mode, port=8000)

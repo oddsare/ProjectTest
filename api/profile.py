@@ -15,7 +15,7 @@ def register_routes(app, get_db, login_required, allowed_file, UPLOAD_FOLDER):
         profile = db.execute('SELECT * FROM profiles WHERE user_id = ?', (user_id,)).fetchone()
         db.close()
 
-        # Build full URL for profile picture
+        # Build profile picture URL
         profile_pic_url = None
         if profile and profile['profile_picture']:
             profile_pic_url = f"/uploads/profile_pictures/{profile['profile_picture']}"
@@ -57,7 +57,7 @@ def register_routes(app, get_db, login_required, allowed_file, UPLOAD_FOLDER):
         major = data.get('major')
         hobbies = data.get('hobbies')
 
-        # Check if profile is complete
+        # Check if complete
         profile_completed = bool(bio and year and major and hobbies)
 
         db.execute('''
@@ -85,7 +85,7 @@ def register_routes(app, get_db, login_required, allowed_file, UPLOAD_FOLDER):
         if not user:
             return jsonify({'error': 'User not found'}), 404
 
-        # Build full URL for profile picture
+        # Build profile picture URL
         profile_pic_url = None
         if profile and profile['profile_picture']:
             profile_pic_url = f"/uploads/profile_pictures/{profile['profile_picture']}"
@@ -119,7 +119,7 @@ def register_routes(app, get_db, login_required, allowed_file, UPLOAD_FOLDER):
             filepath = os.path.join(UPLOAD_FOLDER, filename)
             file.save(filepath)
 
-            # Update database
+            # Save to database
             db = get_db()
             db.execute('UPDATE profiles SET profile_picture = ? WHERE user_id = ?',
                       (filename, user_id))

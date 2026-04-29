@@ -64,10 +64,10 @@ def register_routes(app, get_db, login_required):
             db.close()
             return jsonify({'error': 'Complete the survey first', 'code': 'SURVEY_INCOMPLETE'}), 400
 
-        # Get current user's survey data
+        # Get current user survey
         current_user_survey = dict(survey)
 
-        # Get all other users who completed survey (exclude already matched)
+        # Find already matched users
         already_matched = db.execute('''
             SELECT CASE
                 WHEN user1_id = ? THEN user2_id
@@ -80,7 +80,7 @@ def register_routes(app, get_db, login_required):
         matched_ids = [row['matched_user_id'] for row in already_matched]
         matched_ids.append(user_id)  # Exclude self
 
-        # Exclude blocked users (both directions: users I blocked and users who blocked me)
+        # Find blocked users (both ways)
         blocked = db.execute('''
             SELECT blocked_id AS user_id FROM blocked_users WHERE blocker_id = ?
             UNION
@@ -88,7 +88,7 @@ def register_routes(app, get_db, login_required):
         ''', (user_id, user_id)).fetchall()
         matched_ids.extend([row['user_id'] for row in blocked])
 
-        # Get potential matches
+        # Get users available for matching
         placeholders = ','.join('?' * len(matched_ids))
         potential_matches = db.execute(f'''
             SELECT u.id, u.first_name, u.last_name, u.email, s.*
@@ -99,16 +99,16 @@ def register_routes(app, get_db, login_required):
             AND p.profile_completed = 1
         ''', matched_ids).fetchall()
 
-        # Calculate match scores using Matching.py algorithm
+        # Calculate compatibility scores
         matches = []
         for user in potential_matches:
             user_survey = dict(user)
             score = calculate_match_score(current_user_survey, user_survey)
 
-            if score != float('inf'):  # Valid match (passed hard filters)
-                compatibility = max(0, 100 - int(score * 5))  # Convert distance to %
+            if score != float('inf'):  # Valid match
+                compatibility = max(0, 100 - int(score * 5))  # Convert to percentage
 
-                # Get shared traits (for display)
+                # Find shared traits
                 shared_traits = []
                 if current_user_survey.get('question4') == user_survey.get('question4'):
                     shared_traits.append('Greek Life')
@@ -147,7 +147,7 @@ def register_routes(app, get_db, login_required):
 
         db = get_db()
 
-        # Create match request (bidirectional for chat)
+        # Create match request
         try:
             db.execute('''
                 INSERT INTO match_requests (from_user_id, to_user_id)
@@ -155,15 +155,15 @@ def register_routes(app, get_db, login_required):
             ''', (user_id, target_user_id))
             db.commit()
         except:
-            pass  # Already exists
+            pass  # Request already exists
 
-        # Check if mutual request exists
+        # Check if they also sent you a request
         mutual = db.execute('''
             SELECT id FROM match_requests
             WHERE from_user_id = ? AND to_user_id = ?
         ''', (target_user_id, user_id)).fetchone()
 
-        # Send email notification to target user
+        # Send email to target user
         sender = db.execute('SELECT first_name, last_name FROM users WHERE id = ?', (user_id,)).fetchone()
         target = db.execute('SELECT email, first_name, last_name FROM users WHERE id = ?', (target_user_id,)).fetchone()
 
@@ -189,7 +189,7 @@ def register_routes(app, get_db, login_required):
 
         db = get_db()
 
-        # Check if user already has confirmed match
+        # Check if you already have roommate
         existing_match = db.execute('''
             SELECT id FROM matches
             WHERE user1_id = ? OR user2_id = ?
@@ -199,7 +199,7 @@ def register_routes(app, get_db, login_required):
             db.close()
             return jsonify({'error': 'You already have a confirmed match', 'code': 'ALREADY_MATCHED'}), 400
 
-        # Check mutual request exists
+        # Check if mutual request exists
         mutual_request = db.execute('''
             SELECT id FROM match_requests
             WHERE (from_user_id = ? AND to_user_id = ?)
@@ -210,7 +210,7 @@ def register_routes(app, get_db, login_required):
             db.close()
             return jsonify({'error': 'No pending request with this user'}), 400
 
-        # Check target hasn't confirmed with someone else
+        # Check if they already have roommate
         target_match = db.execute('''
             SELECT id FROM matches
             WHERE user1_id = ? OR user2_id = ?
@@ -220,7 +220,7 @@ def register_routes(app, get_db, login_required):
             db.close()
             return jsonify({'error': 'This user already confirmed with someone else'}), 400
 
-        # Create confirmed match
+        # Make them roommates
         try:
             user_ids = sorted([user_id, target_user_id])
             db.execute('''
@@ -331,7 +331,7 @@ def register_routes(app, get_db, login_required):
             db.close()
             return jsonify({'error': 'Request not found'}), 404
 
-        # Check if either user already has a confirmed match
+        # Check if either already has roommate
         existing = db.execute('''
             SELECT id FROM matches
             WHERE user1_id = ? OR user2_id = ? OR user1_id = ? OR user2_id = ?
@@ -341,7 +341,7 @@ def register_routes(app, get_db, login_required):
             db.close()
             return jsonify({'error': 'One of you already has a confirmed roommate'}), 400
 
-        # Create confirmed match immediately
+        # Make them roommates
         user_ids = sorted([user_id, from_user_id])
         try:
             db.execute('''
@@ -353,7 +353,7 @@ def register_routes(app, get_db, login_required):
             db.close()
             return jsonify({'error': 'Failed to create match'}), 500
 
-        # Delete the request (no longer needed)
+        # Delete the request
         db.execute('''
             DELETE FROM match_requests
             WHERE (from_user_id = ? AND to_user_id = ?)
@@ -383,7 +383,7 @@ def register_routes(app, get_db, login_required):
             WHERE from_user_id = ? AND to_user_id = ?
         ''', (from_user_id, user_id))
 
-        # Block mutual visibility - add to blocked_users so they don't see each other
+        # Block mutual visibility
         try:
             db.execute('''
                 INSERT INTO blocked_users (blocker_id, blocked_id, reason)
@@ -400,7 +400,7 @@ def register_routes(app, get_db, login_required):
     @app.route('/api/match/reject', methods=['POST'])
     @login_required
     def reject_match():
-        # Just don't create a match request - no action needed
+        # No action needed
         return jsonify({'success': True})
 
     @app.route('/api/match/check/<int:other_user_id>', methods=['GET'])

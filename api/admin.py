@@ -133,7 +133,7 @@ def register_routes(app, get_db, login_required):
 
         db = get_db()
 
-        # Delete in order: messages, typing_status, match_requests, matches, blocked_users, survey_responses, profiles, users
+        # Delete all user data
         db.execute('DELETE FROM messages WHERE sender_id = ?', (user_id,))
         db.execute('DELETE FROM typing_status WHERE user_id = ?', (user_id,))
         db.execute('DELETE FROM match_requests WHERE from_user_id = ? OR to_user_id = ?', (user_id, user_id))
@@ -179,7 +179,7 @@ def register_routes(app, get_db, login_required):
         """Break up a match (admin action)"""
         db = get_db()
 
-        # Delete associated messages and typing status first
+        # Delete associated data
         db.execute('DELETE FROM messages WHERE match_id = ?', (match_id,))
         db.execute('DELETE FROM typing_status WHERE match_id = ?', (match_id,))
 
@@ -206,7 +206,7 @@ def register_routes(app, get_db, login_required):
 
         db = get_db()
 
-        # Check if either user already has a match
+        # Check if already matched
         existing = db.execute('''
             SELECT id FROM matches
             WHERE user1_id = ? OR user2_id = ? OR user1_id = ? OR user2_id = ?
@@ -224,7 +224,7 @@ def register_routes(app, get_db, login_required):
                 VALUES (?, ?)
             ''', (user_ids[0], user_ids[1]))
 
-            # Remove any existing match requests between them
+            # Remove any pending requests
             db.execute('''
                 DELETE FROM match_requests
                 WHERE (from_user_id = ? AND to_user_id = ?)
@@ -311,7 +311,7 @@ def register_routes(app, get_db, login_required):
         survey = db.execute('SELECT user_id FROM survey_responses WHERE user_id = ?', (user_id,)).fetchone()
 
         if survey:
-            # Build UPDATE query dynamically
+            # Build update query
             set_clauses = [f'{key} = ?' for key in questions.keys()]
             values = list(questions.values())
             values.append(user_id)

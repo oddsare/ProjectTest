@@ -24,7 +24,7 @@ def register_routes(app, get_db):
         if not email or not password:
             return jsonify({'error': 'Email and password required'}), 400
 
-        # Server-side email domain validation
+        # Check email domain
         if not email.endswith('@go.olemiss.edu'):
             return jsonify({'error': 'Must use Ole Miss email (@go.olemiss.edu)'}), 400
 
@@ -68,7 +68,7 @@ def register_routes(app, get_db):
         if not email or not password:
             return jsonify({'error': 'Email and password required'}), 400
 
-        # Server-side email domain validation
+        # Check email domain
         if not email.endswith('@go.olemiss.edu'):
             return jsonify({'error': 'Must use Ole Miss email (@go.olemiss.edu)'}), 400
 
@@ -121,7 +121,7 @@ def register_routes(app, get_db):
         if not email:
             return jsonify({'error': 'Email required'}), 400
 
-        # Server-side email domain validation
+        # Check email domain
         if not email.endswith('@go.olemiss.edu'):
             return jsonify({'error': 'Must use Ole Miss email (@go.olemiss.edu)'}), 400
 
@@ -129,10 +129,10 @@ def register_routes(app, get_db):
         user = db.execute('SELECT id FROM users WHERE email = ?', (email,)).fetchone()
 
         if not user:
-            # Don't reveal if email exists - return success anyway for security
+            # Don't reveal if email exists
             return jsonify({'message': 'If that email exists, a reset link will be provided'}), 200
 
-        # Generate secure token
+        # Generate token
         token = secrets.token_urlsafe(32)
         expires_at = datetime.now() + timedelta(hours=1)
 
@@ -148,10 +148,10 @@ def register_routes(app, get_db):
         base_url = request.host_url.rstrip('/')
         email_sent = send_password_reset_email(email, token, base_url)
 
-        # For development, return the token in response if email is disabled
+        # Return token if email disabled (dev mode)
         response = {'message': 'If that email exists, a reset link has been sent'}
         if not email_sent:
-            # Email disabled or failed - return token for development
+            # Email disabled
             response['token'] = token
             response['message'] = 'Email disabled. Reset link generated'
 
