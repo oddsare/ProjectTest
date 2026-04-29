@@ -368,7 +368,15 @@
                 // Load incoming requests and roommate
                 loadIncomingRequests();
                 loadRoommate();
+                loadDashboardMatches();
 
+            } catch (err) {
+                console.error('Dashboard error:', err);
+            }
+        }
+
+        async function loadDashboardMatches() {
+            try {
                 const matchesRes = await fetch(`${API_BASE}/api/matches`, {
                     credentials: 'include'
                 });
@@ -390,7 +398,7 @@
                 }
 
             } catch (err) {
-                console.error('Dashboard error:', err);
+                console.error('Error loading matches:', err);
             }
         }
 
@@ -668,10 +676,11 @@
         document.getElementById('logoutBtn').addEventListener('click', logout);
         loadDashboard();
 
-        // Auto-refresh incoming requests and roommate status every 10 seconds
+        // Auto-refresh incoming requests, roommate status, and matches every 10 seconds
         setInterval(() => {
             loadIncomingRequests();
             loadRoommate();
+            loadDashboardMatches();
         }, 10000);
     </script>
 </body>
