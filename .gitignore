@@ -49,3 +49,6 @@ verify_*.py
 
 # Railway
 .railway/
+
+# Extra/Archive folder - local only
+Extra Stuff goes herer/
